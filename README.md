@@ -1,6 +1,6 @@
 # Let's Build a Compiler for the CLR
 
-##  Introduction
+## Introduction
 
 This book demonstrates the process of creating a language compiler for the CLR. It contains a mixture of generic compiler construction topics and topics specific to compiling for the CLR.
 
@@ -26,35 +26,37 @@ To begin with, this is a "learn by doing" book. Each chapter begins with a goal,
 
 Also, each chapter builds on the work of the previous chapter, so the whole book needs to be read, and the code run, in sequence. A couple of times in the book, we will stop and change our approach, and possibly re-factor our code to match. Consider this as creating multiple versions of our compiler.
 
-Secondly, my aim is to create a compiler for the CLR in such a way that the process of creating it can be examined and understood. We are not trying to produce a template for creating all kinds of compilers. Nor are we trying to write the best, fastest, most reusable, or the most elegant compiler possible. Therefore, preference will be given to readability and understandability, over reusability, performance and above all, elegance. This applies both to compiler construction principles and the coding technique. 
+Secondly, my aim is to create a compiler for the CLR in such a way that the process of creating it can be examined and understood. We are not trying to produce a template for creating all kinds of compilers. Nor are we trying to write the best, fastest, most reusable, or the most elegant compiler possible. Therefore, preference will be given to readability and understandability, over reusability, performance and above all, elegance. This applies both to compiler construction principles and the coding technique.
 
 Thirdly, I believe nothing provides better comprehension than running \(or debugging\) code that produces tangible output. Therefore, at the end of every chapter, starting with chapter 2, we will have a functioning compiler, which will produce an executable file which can also be run. We will not mess with intermediate representations or "assembler" code. The CLR is a brilliant environment for compiler writers in this respect.
 
- Finally, I reiterate that the aim is to examine and understand the process of building a working compiler. To that end, I use one approach, although many alternatives are possible. There may be differences of opinion over how we implement a certain part of the compiler. This is good, and I would appreciate any feedback or corrections, via my e-mail address. Unfortunately, unlike a couple of my idols, Dr. Donald Knuth and Mr. Bruce McKinney, I cannot offer a reward for these.
+Finally, I reiterate that the aim is to examine and understand the process of building a working compiler. To that end, I use one approach, although many alternatives are possible. There may be differences of opinion over how we implement a certain part of the compiler. This is good, and I would appreciate any feedback or corrections. Unfortunately, unlike a couple of my idols, Dr. Donald Knuth and Mr. Bruce McKinney, I cannot offer a reward for these.
 
 ## The development language
 
- The code in this book has been written using Microsoft Visual Basic.NET, only because that is my language of preference. I have a chronic dislike of semicolons, "curly brackets" and case sensitivity. It could well be written using C\#, or any other CLR language. In fact, if someone volunteers to bring out a version of the book using any other language, I will be happy to collaborate. Just let me know.
+The code in this book has been written using Microsoft Visual Basic.NET, only because that is my language of preference. I have a chronic dislike of semicolons, "curly brackets" and case sensitivity. It could well be written using C\#, or any other CLR language. In fact, if someone volunteers to bring out a version of the book using any other language, I will be happy to collaborate. Just let me know.
 
- In many ways, the approach itself is slightly biased towards a Basic programmer…oh, sorry, "programmer", in that first I make something work before thinking of how to make it work well. I am not sorry.
+In many ways, the approach itself is slightly biased towards a Basic programmer…oh, sorry, "programmer", in that first I make something work before thinking of how to make it work well. I am not sorry.
 
 ## The language being developed
 
- A compiler compiles some source language into executable code. Which one should we compile?
+A compiler compiles some source language into executable code. Which one should we compile?
 
- I was tempted to create a C\# compiler, just to spite the people from that camp who say "your language compiler is written using our language". But what we are going to do is create a new language. I have not named the language yet, nor decided the complete feature set. We will define the language as we go along. What I do guarantee is that by the time we are finished, the language will be on par, in terms of features, with all standard CLR languages.
+I was tempted to create a C\# compiler, just to spite the people from that camp who say "your language compiler is written using our language". But what we are going to do is create a new language. I have not named the language yet, nor decided the complete feature set. We will define the language as we go along. 
 
 ## The compiler being developed
 
- As mentioned earlier, at the end of every chapter, we will have a working "compiler", one which produces ready-to-run executable files. In fact, from Chapter 3 onwards, the compiler we create will behave just like the big boys: it will be able to read source code from files and generate an executable. Our compiler will be different in just one way; it will stop compiling at the very first error it finds and reports. Later, we will enhance it to find and report multiple errors.
+As mentioned earlier, at the end of every chapter, we will have a working "compiler", one which produces ready-to-run executable files. In fact, starting from Chapter 3, the compiler we create will behave just like the big boys: it will be able to read source code from files and generate an executable. Our compiler will be different in just one way; it will stop compiling at the very first error it finds and reports. Later, we will enhance it to find and report multiple errors.
 
 ## The development environment
 
- Since we are developing a compiler for the CLR, you obviously need to have the CLR itself installed. I have tested all the code in this book with the Microsoft .NET Framework versions 1.0 and 1.1. The generated code should run on Mono, too, although I have not tested for this.
+Since we are developing a compiler for the CLR, you obviously need to have the CLR itself installed. ~~I have tested all the code in this book with the Microsoft .NET Framework versions 1.0 and 1.1. The generated code should run on Mono, too, although I have not tested for this.~~
 
- When I started writing this book, I did not possess Microsoft Visual Studio. Therefore, my development environment is the .NET Platform SDK, it's tools, and a text editor \(Scite, if anyone's interested\). The compiling and running instructions in the text, therefore, will pertain to that environment. If you have Visual Studio, simply create a console application which contains all the source files we work with. From chapter 3 onwards, this will be a uniform set of four files.
+When I started writing this book \(mid 2004\), I did not own Microsoft Visual Studio. This was before the Express editions became available. Therefore, my development environment was the .NET Platform SDK, it's tools, and a text editor \(Scite, if anyone's interested\). The compiling and running instructions in the text, therefore, will pertain to that environment. If you have Visual Studio, simply create a console application which contains all the source files we work with. From chapter 3 onwards, this will be a uniform set of four files.
+
+Today, 12 years later, I have moved away from Windows, and once again do not have access to Visual Studio. My current development environment is mono version 4.2.1, vbnc \(the mono Visual Basic compiler\) version 0.0.0.5943, and vi.
 
 ## Conclusion
 
- This is, first and foremost, a "fun" book. The primary aim is to create a running compiler from scratch, and secondary aim is to learn a little bit about the arcane art of compiler construction in the process. I hope you enjoy working with it as much as I enjoyed writing it.
+This is, first and foremost, a "fun" book. The primary aim is to create a running compiler from scratch, and secondary aim is to learn a little bit about the arcane art of compiler construction in the process. I hope you enjoy working with it as much as I enjoyed writing it.
 
