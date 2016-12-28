@@ -28,6 +28,26 @@ This makes life simpler by having a single well-defined “virtual machine”, w
 
 Some “virtual machines” eschew the idea of registers altogether. Instead, they use a last-in, first-out stack data structure to hold both data and instructions.Instructions in such a “virtual machine” assume that any data they require will come from the stack, and any results that they produce will be put back on the stack. For example, a hypothetical ADD instruction would take out the last two values from the stack, add them, and put the result back on the stack. This kind of “virtual machine” is called a _stack-based_ virtual machine, or _stack machine_. The previous kind is called _register-based_. Front-end compilers for stack machines are simpler and quicker to build than compilers for other machines[^2].
 
+## The CLR “Virtual Machine”
+
+You’ve probably guessed it; the CLR provides us with a stack-based “virtual machine”, whose instruction set is called  the Common Intermediate Language\(CIL\). All CLR compilers are, therefore, front-end compilers that target CIL. The CLR itself provides the back-end functionality of converting CIL to actual machine code.
+
+The CLR implements a stack, and provides a set of instructions. All data that has to be acted upon is loaded on the stack. Any instruction operates on values on the stack, by removing values from the stack, or adding a new value on to the stack. The process of removal of values is called popping, and the process of putting values in is called pushing or loading. As the name "stack" suggests, values are popped in reverse of the order they are loaded; if you load 2, and then load 3, then when you pop, you will get 3 first, then 2.
+
+For example, to add the values two and three, the following sequence is required.
+
+1. Load the Value **2** onto the stack
+2. Load the Value **3** onto the stack
+3. 1. Apply the CIL Instruction **Add**
+
+The instruction Add will pop the last two values in the stack; add them together, and the load the result back on the stack. At the successful completion of this sequence, the stack will contain one value: the result. If there are less than two values on the stack when the ADD instruction is encountered, the CLR will indicate that this is an error.
+
+Here are some of the instructions that are available in CIL. Instructions are also called OpCodes \(for Operation Codes\).
+
+
+
+If we were creating a compiler for a language which only performed arithmetic using integer numbers, these would be all the instructions we need. In fact, most classical compiler texts begin by creating just such a compiler. Let us do the same. We will learn more instructions, as we need them.
+
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
 
 [^2]: Wikipedia article about stack machines \([https://en.wikipedia.org/wiki/Stack\_machine](https://en.wikipedia.org/wiki/Stack_machine)\)
