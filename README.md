@@ -1,6 +1,6 @@
 # Let's Build a Compiler for the CLR
 
-This book demonstrates the process of creating a compiler for the Common Language Runtime. It's not heavy on theory, not does it contain any "best practices". Instead, it very quickly takes the reader through the process of creating a compiler, showing practical, functioning code at every step. Concepts are discussed only when encountered, and discussed using "accurate enough" information.
+This book demonstrates the process of creating a compiler for the Common Language Runtime. It's not heavy on theory, nor does it contain any "best practices". Instead, it very quickly takes the reader through the process of creating a compiler, showing practical, functioning code at every step. Concepts are discussed only when encountered, and discussed using "accurate enough" information.
 
 In short, it's meant for **fun**. Any learning that results from reading it should be considered a side effect, and completely to the reader's credit.
 
