@@ -366,6 +366,17 @@ Hello.exe
 ```
 Ouch!!! What happened?
 
+##What's going on?
+
+First, we load the number 2 on to the stack. Then we call EmitWriteLine, which pops that number 2 to write it to the screen. _At this point, the stack is empty_. Then, we load the number 2 on to the stack. Then we emit the instruction **Add**, which pops two numbers…OOPS! There is just one number on the stack.
+
+##Invalid Applications(You CAN'T run with scissors)
+
+Look carefully at the output of the last run of hello.exe. By rights, the error occurred after the call to WriteLine. So, we should see a 2 on screen, and then the error message. Is that what happened?
+
+Nope. That is because, as things are, the EXE is invalid. It is impossible to run this EXE and not get an error. The CLR can detect this right at the time of loading the EXE, and choose not to run it. That is exactly what happened. Not even the first load was executed, because the CLR _verified_ the EXE and found it to be invalid. This process of verification happens for any code executed under the CLR, so unlike traditional systems, you can't shoot yourself in the foot. Neat, isn't it?
+
+
 
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
 
