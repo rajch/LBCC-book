@@ -370,12 +370,26 @@ Ouch!!! What happened?
 
 First, we load the number 2 on to the stack. Then we call EmitWriteLine, which pops that number 2 to write it to the screen. _At this point, the stack is empty_. Then, we load the number 2 on to the stack. Then we emit the instruction **Add**, which pops two numbers…OOPS! There is just one number on the stack.
 
-##Invalid Applications(You CAN'T run with scissors)
+##Invalid Applications(or, You CAN'T run with scissors)
 
 Look carefully at the output of the last run of hello.exe. By rights, the error occurred after the call to WriteLine. So, we should see a 2 on screen, and then the error message. Is that what happened?
 
 Nope. That is because, as things are, the EXE is invalid. It is impossible to run this EXE and not get an error. The CLR can detect this right at the time of loading the EXE, and choose not to run it. That is exactly what happened. Not even the first load was executed, because the CLR _verified_ the EXE and found it to be invalid. This process of verification happens for any code executed under the CLR, so unlike traditional systems, you can't shoot yourself in the foot. Neat, isn't it?
 
+##It’s trickier than apparent (or, for each bug you see, there's one you don't)
+
+You can trigger verification without running the EXE, using a tool called `peverify`. We can test this now by executing the command:
+```bash
+peverify hello.exe
+```
+
+This reports **two** errors. What gives?
+
+There are actually two errors. The first one is a "Stack Underflow", as reported by peverify, which is the one we discussed earlier; there are not enough values on the stack for the **Add** Opcode to work. The other one, which is shown as "Unspecified Error" by peverify, stems from the fact that the stack is not empty when the method finishes. The last valid thing we did was load the number 2.
+
+The stack has to be empty at the end of our method. If we had omitted the call to EmitAdd, we would not have got the "Stack Underflow" error, but we would have got the other error, which peverify would have been able to more correctly identify.
+
+The complete rule is "The stack must be empty at the end of a VOID method", which is a method that does not return any value. In the produced hello.exe, the only method is MainMethod, which does not return any value. So, the stack must be empty when MainMethod finishes.
 
 
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
