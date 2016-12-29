@@ -494,9 +494,34 @@ EmitString loads a string onto the stack. EmitWriteLineString works the same as 
 Armed with this enhanced CodeGen, we can now create a "compiler", which will create our "Hello, world" executable. Save the following as **Tester4.vb**.
 
 ```vb
+Option Strict On
+Option Explicit On
 
+Module Tester4
+    Sub Main()
+        Dim cg As New CodeGen("hello.exe")
+
+        cg.EmitString("Hello, world.")
+        cg.EmitWriteLineString()
+
+        cg.Save()
+
+    End Sub
+End Module
 ```
-
+Compile with:
+```bash
+vbc /out:Tester4.exe Tester4.vb CodeGen.vb
+```
+Run with:
+```bash
+Tester4.exe
+```
+which should produce the file hello.exe. Now run:
+```bash
+hello.exe
+```
+And so the legacy of "Hello, world" lives on.
 
 
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
