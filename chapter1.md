@@ -458,6 +458,11 @@ In our case, the CLR, which after all stands for the Common Language Runtime[^3]
 
 Ultimately, the aim of a compiler for the CLR is to produce IL that is free of compile-time errors. The resulting assembly should be able to pass the verification process.
 
+##The unavoidable "Hello, world"
+
+I had started this chapter intending to create a code generator that generates just enough code to deal with integer numbers. But then I remembered a tradition started by the legendary Brian Kernighan: the first program that you write in any language should output the words "Hello, world."[^4] While we don't have a "language" yet, we do have a "compiler" which produces executable code. Our working "compiler", Tester1.exe, produces an executable that adds 2 and 2, and thus breaks tradition. 
+
+So, let us add just enough features to our code generator to enable us to create an executable which says "Hello, world".
 
 
 
@@ -467,3 +472,5 @@ Ultimately, the aim of a compiler for the CLR is to produce IL that is free of c
 [^2]: Wikipedia article about stack machines \([https://en.wikipedia.org/wiki/Stack\_machine](https://en.wikipedia.org/wiki/Stack_machine)\)
 
 [^3]: An interesting note here. As the name suggests, the CLR is: a run-time environment common to many languages, including C#, Visual Basic.NET, F#, Boo, IronPython and so on. When the CLR was first released in the early 2000s, there was this in-joke among Visual Basic enthusiasts: the new Visual Basic runtime was so good, they decided to share it with other languages, and so the CLR was born. 
+
+[^4]: Wikipedia article about Hello World \([https://en.wikipedia.org/wiki/%22Hello,_World!%22_program](https://en.wikipedia.org/wiki/%22Hello,_World!%22_program)\)
