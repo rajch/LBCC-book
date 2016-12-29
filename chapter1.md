@@ -178,10 +178,6 @@ Public Class CodeGen
 		m_ILGen.Emit(OpCodes.Ldc_I4, num)
 	End Sub
 
-	Public Sub EmitString(ByVal str As String)
-		m_ILGen.Emit(OpCodes.Ldstr, str)
-	End Sub
-
 	Public Sub EmitAdd()
 		m_ILGen.Emit(OpCodes.Add)
 	End Sub
@@ -196,6 +192,19 @@ Public Class CodeGen
 
 	Public Sub EmitDivide()
 		m_ILGen.Emit(OpCodes.Div)
+	End Sub
+
+	Public Sub EmitWriteLine()
+		Dim inttype As Type = Type.GetType("System.Int32")
+		Dim consoletype As Type = Type.GetType("System.Console")
+		Dim paramtypes() As Type = {inttype}
+
+		m_ILGen.Emit( _
+			OpCodes.Call, _
+			consoletype.GetMethod( _
+				"WriteLine", paramtypes _
+			) _
+		)
 	End Sub
 
 	Public Sub New(ByVal FileName As String)
@@ -264,6 +273,21 @@ Public Class CodeGen
 End Class
 
 ```
+Here is a quick and dirty explanation of what is going on. Detailed explanations will be given in later chapters.
+
+1. Each CLR application is contained in a package called an _assembly_. An assembly usually corresponds to an EXE (or a DLL) file.
+
+2. An assembly can contain one or more _modules_. Modules are usually present inside the Assembly's EXE file, although they can exist outside.
+
+3. A module consists of one or more _types_, which are classes or structures.
+
+4. A type has members, called fields, properties, events and methods.
+
+5. In the class constructor of our CodeGen class (`Sub New`) method, we create an assembly whose name is "MainAssembly". In this, we create a module called "MainModule", inside which we create a class type called "MainClass". Inside the class, we create a Shared (static) method called "MainMethod", for which we then obtain an ILGenerator. What this means is that all the IL instructions that our compiler will generate by calling the various Emit methods will be contained in the MainMethod in the EXE file that is finally produced.
+
+6. When the Save method is called, the first thing it does is emit an Opcode called Ret. Every method in a CLR executable must end with the Ret instruction. Thereafter, we specify that MainMethod is the entry point of the assembly, which means that when the assembly EXE file is run, the code in MainMethod should be executed. We also specify that the assembly is a "console application". Finally, we save the assembly to an EXE file, the name of which had been passed to Init and stored in a field called m_SaveToFile.
+
+The method EmitWriteLine emits IL instructions to cause the generated EXE to print the last number on the stack to the screen. The technique used in this method, as well as the actual Opcode emitted, **Call**, will be discussed in detail in a future chapter. As of now, we need to remember only this: just like EmitAdd expects two numbers on the stack, and pops them, EmitWriteline expects a single number on top of the stack, and pops it. The number is displayed on the screen.
 
 
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
