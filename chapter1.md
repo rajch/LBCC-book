@@ -310,6 +310,8 @@ Module Tester1
 End Module
 ```
 
+It is now time to compile and run. You may want to review the instructions to do so, especially if you are running Mono on Linux. Take a look at the chapter called [The Development Environment](/the-development-environment.md).
+
 Compile with the following command:
 ```bash
 vbc /out:Tester1.exe Tester1.vb CodeGen.vb
@@ -528,6 +530,7 @@ And so the legacy of "Hello, world" lives on.
 In this chapter, we learned how the CLR "virtual machine" works. We also created a rudimentary code generator, which allows us to directly produce an executable file that we can run. In the process, we learned about compile-time and run-time errors, and touched upon the concept of verifying applications.
 
 A compiler translates some source code into object code. In this chapter, we demonstrated the object code part. In the next chapter, we will start looking at how to deal with the source code part.
+
 
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
 

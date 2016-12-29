@@ -42,7 +42,7 @@ In many ways, the approach itself is slightly biased towards a Basic programmerâ
 
 A compiler compiles some source language into executable code. Which one should we compile?
 
-I was tempted to create a C\# compiler, just to spite the people from that camp who say "your language compiler is written using our language". But what we are going to do is create a new language. I have not named the language yet, nor decided the complete feature set. We will define the language as we go along.
+I was tempted to create a C\# compiler, just to spite the people from that camp who say "your language compiler is written using our language". But what we are going to do is create a new language, called LBCC after the book. I have not decided the complete feature set for LBCC. We will define the language as we go along.
 
 ## The compiler being developed
 
@@ -52,9 +52,7 @@ As mentioned earlier, at the end of every chapter, we will have a working "compi
 
 Since we are developing a compiler for the CLR, you obviously need to have the CLR itself installed. ~~I have tested all the code in this book with the Microsoft .NET Framework versions 1.0 and 1.1. The generated code should run on Mono, too, although I have not tested for this.~~
 
-When I started writing this book \(mid 2004\), I did not own Microsoft Visual Studio. This was before the Express editions became available. Therefore, my development environment was the .NET Platform SDK, it's tools, and a text editor \(Scite, if anyone's interested\). The compiling and running instructions in the text, therefore, will pertain to that environment. If you have Visual Studio, simply create a console application which contains all the source files we work with. From chapter 3 onwards, this will be a uniform set of four files.
-
-Today, 12 years later, I have moved away from Windows, and once again do not have access to Visual Studio. My current development environment is mono version 4.2.1, vbnc \(the mono Visual Basic compiler\) version 0.0.0.5943, and vi.
+This topic now merits its own chapter. That's the [next one](/the-development-environment.md).
 
 ## Conclusion
 
