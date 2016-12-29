@@ -112,7 +112,7 @@ pushed back on the stack.
 
 If we were creating a compiler for a language which only performed arithmetic using integer numbers, these would be all the instructions we need. In fact, most classical compiler texts begin by creating just such a compiler. Let us do the same. We will learn more instructions, as we need them.
 
-##Reflection Emit
+## Reflection Emit
 
 It is one thing to know IL instructions, another thing to produce them. By produce, I mean emit them in a form that can be executed; in short, an executable file(.exe). Luckily, the CLR provides a way for us to directly produce an executable file from our own applications; this mechanism is called Reflection Emit.
 
@@ -289,10 +289,10 @@ Here is a quick and dirty explanation of what is going on. Detailed explanations
 
 The method EmitWriteLine emits IL instructions to cause the generated EXE to print the last number on the stack to the screen. The technique used in this method, as well as the actual Opcode emitted, **Call**, will be discussed in detail in a future chapter. As of now, we need to remember only this: just like EmitAdd expects two numbers on the stack, and pops them, EmitWriteline expects a single number on top of the stack, and pops it. The number is displayed on the screen.
 
-##Testing CodeGen
+## Testing CodeGen
 Let's test this. Save the following code as **Tester1.vb**.
 
-```
+```vb
 Option Strict On
 Option Explicit On
 
@@ -325,11 +325,11 @@ Hello
 
 Voila. Tester1.exe produced Hello.exe. Hello.exe is our first “compiled” executable, which correctly adds 2 and 2, and shows the result.
 
-##What's happening here
+## What's happening here
 
 First, we load the number two on to the stack. Then, we load the number two (again) on to the stack. Then, we emit the instruction **Add**, which pops the numbers from the stack, adds them, and loads the result (4) onto the stack. Finally, EmitWriteLine pops a number (the result) from the stack, and shows it. At the end of it all, the stack is empty.
 
-##Error: Error not found
+## Error: Error not found
 
 I like to keep my examples as real-life as possible, and this last one was not real-life at all. _It worked the first time_. Every developer knows that you should expect some errors the first time.
 
@@ -366,17 +366,17 @@ Hello.exe
 ```
 Ouch!!! What happened?
 
-##What's going on?
+## What's going on?
 
 First, we load the number 2 on to the stack. Then we call EmitWriteLine, which pops that number 2 to write it to the screen. _At this point, the stack is empty_. Then, we load the number 2 on to the stack. Then we emit the instruction **Add**, which pops two numbers…OOPS! There is just one number on the stack.
 
-##Invalid Applications(or, You CAN'T run with scissors)
+## Invalid Applications(or, You CAN'T run with scissors)
 
 Look carefully at the output of the last run of hello.exe. By rights, the error occurred after the call to WriteLine. So, we should see a 2 on screen, and then the error message. Is that what happened?
 
 Nope. That is because, as things are, the EXE is invalid. It is impossible to run this EXE and not get an error. The CLR can detect this right at the time of loading the EXE, and choose not to run it. That is exactly what happened. Not even the first load was executed, because the CLR _verified_ the EXE and found it to be invalid. This process of verification happens for any code executed under the CLR, so unlike traditional systems, you can't shoot yourself in the foot. Neat, isn't it?
 
-##It’s trickier than apparent (or, for each bug you see, there's one you don't)
+## It’s trickier than apparent (or, for each bug you see, there's one you don't)
 
 You can trigger verification without running the EXE, using a tool called `peverify`. We can test this now by executing the command:
 ```bash
@@ -391,7 +391,7 @@ The stack has to be empty at the end of our method. If we had omitted the call t
 
 The complete rule is "The stack must be empty at the end of a VOID method", which is a method that does not return any value. In the produced hello.exe, the only method is MainMethod, which does not return any value. So, the stack must be empty when MainMethod finishes.
 
-##Another kind of error
+## Another kind of error
 
 Can't get enough of them errors. Here's another kind. Modify **Tester2.vb** to look like this, and save as **Tester3.vb**.
 
@@ -436,7 +436,7 @@ peverify hello.exe
 ```
 which reports that the executable is valid.
 
-##Compile-time vs. Run-time errors
+## Compile-time vs. Run-time errors
 
 The first kind of error we produced could be prevented at the time of compilation itself. It is an error in compilation, an error that causes an invalid application to be produced. This kind of error is called a _compile-time error_.
 
@@ -458,13 +458,13 @@ In our case, the CLR, which after all stands for the Common Language Runtime[^3]
 
 Ultimately, the aim of a compiler for the CLR is to produce IL that is free of compile-time errors. The resulting assembly should be able to pass the verification process.
 
-##The unavoidable "Hello, world"
+## The unavoidable "Hello, world"
 
 I had started this chapter intending to create a code generator that generates just enough code to deal with integer numbers. But then I remembered a tradition started by the legendary Brian Kernighan: the first program that you write in any language should output the words "Hello, world."[^4] While we don't have a "language" yet, we do have a "compiler" which produces executable code. Our working "compiler", Tester1.exe, produces an executable that adds 2 and 2, and thus breaks tradition. 
 
 So, let us add just enough features to our code generator to enable us to create an executable which says "Hello, world".
 
-##The CLR comes with strings attached
+## The CLR comes with strings attached
 
 "Hello, world" is a string. Bare-metal machines know nothing about strings, so traditional compilers had to jump through hoops, figuring out how to deal with them. Different languages have different ways of dealing with strings. We are in luck, because we are building a compiler for the CLR. The CLR understands strings perfectly, and makes them uniformly available to all languages that target it.
 
@@ -523,7 +523,7 @@ hello.exe
 ```
 And so the legacy of "Hello, world" lives on.
 
-##Conclusion
+## Conclusion
 
 In this chapter, we learned how the CLR "virtual machine" works. We also created a rudimentary code generator, which allows us to directly produce an executable file that we can run. In the process, we learned about compile-time and run-time errors, and touched upon the concept of verifying applications.
 
