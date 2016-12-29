@@ -8,3 +8,5 @@ This book owes its existence to a brilliant 15-part article series by Dr. Jack C
 
 Please read this book too, and run the code therein. A working compiler in every chapter from Chapter 1 onwards, I promise.
 
+The companion code for this book can be found at [https://github.com/rajch/LBCC-code](https://github.com/rajch/LBCC-code).
+
