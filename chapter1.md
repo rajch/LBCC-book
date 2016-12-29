@@ -112,6 +112,47 @@ pushed back on the stack.
 
 If we were creating a compiler for a language which only performed arithmetic using integer numbers, these would be all the instructions we need. In fact, most classical compiler texts begin by creating just such a compiler. Let us do the same. We will learn more instructions, as we need them.
 
+##Reflection Emit
+
+It is one thing to know IL instructions, another thing to produce them. By produce, I mean emit them in a form that can be executed; in short, an executable file(.exe). Luckily, the CLR provides a way for us to directly produce an executable file from our own applications; this mechanism is called Reflection Emit.
+
+We need not delve into the details of Reflection Emit just yet. All we need to know, at this point, is that Reflection Emit provides us with a class called **ILGenerator**, which enables us to produce IL instructions directly to an EXE file. This class has a method called **Emit**, which is what we use.
+
+Here is some code that demonstrates how ILGenerator is used, and also sets up a framework for the code generation part of our compiler.
+
+```vb
+Imports System
+Imports System.Reflection
+Imports System.Reflection.Emit
+ 
+Public Class CodeGen
+      Private m_ILGen As ILGenerator
+ 
+      Public Sub EmitNumber(num As Integer)
+           m_ILGen.Emit(Opcodes.Ldc_i4, num)
+      End Sub
+End Class
+```
+We create a class called CodeGen, which has a private variable called m\_ILGen, which is of type ILGenerator. In the subroutine EmitNumber, we use the Emit method of m\_ILGen, passing it the Opcode **Ldc\_i4**, which we discussed earlier, and the number to be loaded. We can write all our emitting code like this. So, let us add the code for emitting the four mathematical operations to the CodeGen class.
+
+```vb
+Public Sub EmitAdd()
+     m_ILGen.Emit(Opcodes.Add)
+End Sub
+ 
+Public Sub EmitSubtract()
+     m_ILGen.Emit(Opcodes.Sub)
+End Sub
+ 
+Public Sub EmitMultiply()
+     m_ILGen.Emit(Opcodes.Mul)
+End Sub
+ 
+Public Sub EmitDivide()
+     m_ILGen.Emit(Opcodes.Div)
+End Sub
+```
+
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
 
 [^2]: Wikipedia article about stack machines \([https://en.wikipedia.org/wiki/Stack\_machine](https://en.wikipedia.org/wiki/Stack_machine)\)
