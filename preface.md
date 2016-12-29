@@ -8,13 +8,13 @@ This book demonstrates the process of creating a language compiler for the CLR. 
 
 For many years, I wanted to write a compiler. I read, or tried to read, a lot of books on the subject. Two things about these books consistently turned me off: one, they were, one and all, written using language familiar to mathematics and computer science students, but Greek \(often literally\) to the rest of us. Two, almost all of them were full of information about how to read source code and understand it \(_lexing_ and _parsing_\), but contained precious little information about how to generate machine code, and specifically machine code for the only kind of machine that I had handy; x86.
 
-Then, I hit the jackpot; I read a brilliant article series called "Let's Build a Compiler" by Dr. Jack Crenshaw. I love Dr. Crenshaw's approach of learning by doing, showing ONE way of doing things while mentioning that there were others, avoiding jargon until unavoidable and explaining it lucidly when not, and above all, keeping it simple. This article series taught me more than all the books I had read so far, and even the books started making more sense after I finished the series. "Let's Build a Compiler", © Jack Crenshaw, is definitely recommended reading for anyone who wants to learn about how compilers are built.
+Then, I hit the jackpot; I read a brilliant article series called "Let's Build a Compiler" by Dr. Jack Crenshaw. I love Dr. Crenshaw's approach of learning by doing, showing ONE way of doing things while mentioning that there were others, avoiding jargon until unavoidable and explaining it lucidly when not, and above all, keeping it simple. This article series taught me more than all the books I had read so far, and even the books started making more sense after I finished the series. "Let's Build a Compiler", © Jack Crenshaw[^1], is definitely recommended reading for anyone who wants to learn about how compilers are built.
 
 When the CLR appeared, I was delighted with the features provided for compiler writers, and quickly wrote my first CLR compiler. As happens very often with quick-and-very-dirty projects, a month later, I could not read what I had written. So I started re-writing it, this time being careful to document what I wrote. That documentation is what became chapters two and three of this book.
 
 ## Goal
 
-The goal of this book is to teach you to create a language compiler for the CLR. That's it. This book does not aim to teach you everything about compiler construction theory. In fact, we will not even discuss several "pure theoretical" topics. Instead, we will discuss several topics which are important in creating compilers for the CLR, but not applicable elsewhere.
+The goal of this book is to teach you to create a language compiler for the CLR. That's it. This book does not aim to teach you everything about compiler construction theory. In fact, we will not even discuss several "pure theoretical" topics. Instead, we will discuss some topics which are important in creating compilers for the CLR, but not applicable elsewhere.
 
 This is not to say we will not learn anything about generic compiler construction. Whenever we actually implement a compiler construction technique, we will discuss the theory behind it, and also discuss alternative implementations. And we will implement basic as well as advanced principles; for instance, we will be implementing \(and discussing\) scanning and parsing, code generation, strong data types, and optimization.
 
@@ -42,7 +42,7 @@ In many ways, the approach itself is slightly biased towards a Basic programmer�
 
 A compiler compiles some source language into executable code. Which one should we compile?
 
-I was tempted to create a C\# compiler, just to spite the people from that camp who say "your language compiler is written using our language". But what we are going to do is create a new language, called LBCC after the book. I have not decided the complete feature set for LBCC. We will define the language as we go along.
+I was tempted to create a C\# compiler, just to spite the people from that camp who say "your language compiler is written using our language". But what we are going to do is create a new language, called **LBCC** after the book. I have not decided the complete feature set for LBCC. We will define the language as we go along.
 
 ## The compiler being developed
 
@@ -56,5 +56,7 @@ This topic now merits its own chapter. That's the [next one](/the-development-en
 
 ## Conclusion
 
-This is, first and foremost, a "fun" book. The primary aim is to create a running compiler from scratch, and secondary aim is to learn a little bit about the arcane art of compiler construction in the process. I hope you enjoy working with it as much as I enjoyed writing it.
+This is, first and foremost, a "fun" book. The primary aim is to create a running compiler from scratch, and secondary aim is to learn a little bit about the arcane art of compiler construction in the process. I hope you enjoy reading and working with it as much as I enjoyed writing it.
+
+[^1]: **Let's Build a Compiler**, by Dr. Jack Crenshaw. [http://compilers.iecc.com/crenshaw/](http://compilers.iecc.com/crenshaw/)
 
