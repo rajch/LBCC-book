@@ -464,6 +464,38 @@ I had started this chapter intending to create a code generator that generates j
 
 So, let us add just enough features to our code generator to enable us to create an executable which says "Hello, world".
 
+##The CLR comes with strings attached
+
+"Hello, world" is a string. Bare-metal machines know nothing about strings, so traditional compilers had to jump through hoops, figuring out how to deal with them. Different languages have different ways of dealing with strings. We are in luck, because we are building a compiler for the CLR. The CLR understands strings perfectly, and makes them uniformly available to all languages that target it.
+
+Strings are manipulated in exactly the same way as anything else; they are loaded on to the stack, and popped when needed. The opcode to load a string is called **LdStr**. Let us add that capability to our CodeGen class. Add the following code to **CodeGen.vb**, inside the CodeGen class definition:
+
+```vb
+	Public Sub EmitString(ByVal str As String)
+		m_ILGen.Emit(OpCodes.Ldstr, str)
+	End Sub
+	
+	Public Sub EmitWriteLineString()
+		Dim strtype As Type = Type.GetType("System.String")
+		Dim consoletype As Type = Type.GetType("System.Console")
+		Dim paramtypes() As Type = {strtype}
+
+		m_ILGen.Emit( _
+			OpCodes.Call, _
+			consoletype.GetMethod( _
+				"WriteLine", paramtypes _
+			) _
+		)
+	End Sub
+```
+
+EmitString loads a string onto the stack. EmitWriteLineString works the same as EmitWriteLine, except that the code it emits expects a string on top of the stack.
+
+Armed with this enhanced CodeGen, we can now create a "compiler", which will create our "Hello, world" executable. Save the following as **Tester4.vb**.
+
+```vb
+
+```
 
 
 
