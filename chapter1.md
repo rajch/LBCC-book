@@ -325,6 +325,47 @@ Hello
 
 Voila. Tester1.exe produced Hello.exe. Hello.exe is our first “compiled” executable, which correctly adds 2 and 2, and shows the result.
 
+##What's happening here
+
+First, we load the number two on to the stack. Then, we load the number two (again) on to the stack. Then, we emit the instruction **Add**, which pops the numbers from the stack, adds them, and loads the result (4) onto the stack. Finally, EmitWriteLine pops a number (the result) from the stack, and shows it. At the end of it all, the stack is empty.
+
+##Error: Error not found
+
+I like to keep my examples as real-life as possible, and this last one was not real-life at all. _It worked the first time_. Every developer knows that you should expect some errors the first time.
+
+So, let us introduce some errors. Modify the code in **Tester1.vb** to look like this, and save as **Tester2.vb**.
+
+```vb
+Option Strict On
+Option Explicit On
+
+Module Tester1
+	Sub Main()
+		Dim cg As New CodeGen("hello.exe")
+
+		cg.EmitNumber(2)
+		cg.EmitWriteLine()
+		cg.EmitNumber(2)
+		cg.EmitAdd()
+
+		cg.Save()
+	End Sub
+End Module
+```
+Again, compile:
+```bash
+vbc /out:Tester2.exe Tester2.vb CodeGen.vb
+```
+Run:
+```bash 
+Tester2.exe
+```
+which should produce the file hello.exe. Now run:
+```bash
+Hello.exe
+```
+Ouch!!! What happened?
+
 
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
 
