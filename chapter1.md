@@ -391,6 +391,34 @@ The stack has to be empty at the end of our method. If we had omitted the call t
 
 The complete rule is "The stack must be empty at the end of a VOID method", which is a method that does not return any value. In the produced hello.exe, the only method is MainMethod, which does not return any value. So, the stack must be empty when MainMethod finishes.
 
+##Another kind of error
+
+Can't get enough of them errors. Here's another kind. Modify **Tester2.vb** to look like this, and save as **Tester3.vb**.
+
+```vb
+Option Strict On
+Option Explicit On
+
+Module Tester3
+	Sub Main()
+		Dim cg As New CodeGen("hello.exe")
+
+		cg.EmitNumber(2)
+		cg.EmitWriteLine()
+
+		cg.EmitNumber(2)
+		cg.EmitNumber(0)
+		cg.EmitDivide()
+		cg.EmitWriteLine()
+
+		cg.Save()
+	End Sub
+End Module
+```
+
+
+
+
 
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
 
