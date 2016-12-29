@@ -38,13 +38,77 @@ For example, to add the values two and three, the following sequence is required
 
 1. Load the Value **2** onto the stack
 2. Load the Value **3** onto the stack
-3. 1. Apply the CIL Instruction **Add**
+3. Apply the CIL Instruction **Add**
 
 The instruction Add will pop the last two values in the stack; add them together, and the load the result back on the stack. At the successful completion of this sequence, the stack will contain one value: the result. If there are less than two values on the stack when the ADD instruction is encountered, the CLR will indicate that this is an error.
 
 Here are some of the instructions that are available in CIL. Instructions are also called OpCodes \(for Operation Codes\).
 
-
+<table>
+<thead>
+<tr>
+<th>
+OpCode
+</th>
+<th>
+What it does
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+LdC_i4
+</td>
+<td>
+Stands for LoaD Constant Integer of size 4-bytes. As the name suggests, it is used for loading a 32-bit integer number on
+the stack. There are equivalent instructions for loading other kinds of data.
+</td>
+</tr>
+<tr>
+<td>
+Add
+</td>
+<td>
+Pops the last two values on the stack, adds them together, and loads the result on the stack.
+</td>
+</tr>
+<tr>
+<td>
+Sub
+</td>
+<td>
+Pops the last two values on the stack. Then, the first value popped is subtracted from the second value popped. So, the instruction
+sequence:
+<ol>
+<li>Load 2</li>
+<li>Load 3</li>
+<li>Sub</li>
+</ol>
+would cause 2 to be loaded, then 3 to be loaded, then 3 to be popped, then 2 to be popped, then 3 (the first value popped)
+to be subtracted from 2 (the second value popped) and finally, the result, -1, would be pushed back on
+to the stack. The stack would only have the value –1 at the end of the sequence.
+</td>
+</tr>
+<tr>
+<td>
+Mul
+</td>
+<td>
+Pops the last two values on the stack, multiplies them, and loads the result on the stack.
+</td>
+</tr>
+<tr>
+<td>
+Div
+</td>
+<td>
+Pops the last two values on the stack. Then, the second value popped is divided by the first value popped. The result is
+pushed back on the stack.
+</td>
+</tr>
+</tbody>
+</table>
 
 If we were creating a compiler for a language which only performed arithmetic using integer numbers, these would be all the instructions we need. In fact, most classical compiler texts begin by creating just such a compiler. Let us do the same. We will learn more instructions, as we need them.
 
