@@ -289,6 +289,42 @@ Here is a quick and dirty explanation of what is going on. Detailed explanations
 
 The method EmitWriteLine emits IL instructions to cause the generated EXE to print the last number on the stack to the screen. The technique used in this method, as well as the actual Opcode emitted, **Call**, will be discussed in detail in a future chapter. As of now, we need to remember only this: just like EmitAdd expects two numbers on the stack, and pops them, EmitWriteline expects a single number on top of the stack, and pops it. The number is displayed on the screen.
 
+##Testing CodeGen
+Let's test this. Save the following code as **Tester1.vb**.
+
+```
+Option Strict On
+Option Explicit On
+
+Module Tester1
+	Sub Main()
+		Dim cg As New CodeGen("hello.exe")
+
+		cg.EmitNumber(2)
+		cg.EmitNumber(2)
+		cg.EmitAdd()
+		cg.EmitWriteLine()
+
+		cg.Save()
+	End Sub
+End Module
+```
+
+Compile with the following command:
+```bash
+vbc /out:Tester1.exe Tester1.vb CodeGen.vb
+```
+Then, run it with:
+```
+Tester1.exe
+```
+which should produce the file hello.exe. Now, run:
+```bash
+Hello
+```
+
+Voila. Tester1.exe produced Hello.exe. Hello.exe is our first “compiled” executable, which correctly adds 2 and 2, and shows the result.
+
 
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
 
