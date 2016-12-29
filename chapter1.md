@@ -152,6 +152,10 @@ Public Sub EmitDivide()
      m_ILGen.Emit(Opcodes.Div)
 End Sub
 ```
+##Code(Gen) Complete
+
+By now, you would have noticed that we have not initialized the variable m_ILGen. Also, the question arises, where do opcodes and the data emitted by the ILGenerator go? The full explanation for these will be handled in a later chapter, but for now, here is the complete listing for the CodeGen class. Bear with me, and save this as **CodeGen.vb**. We will keep coming back to this class, both for a complete explanation of what is going on, as well as for adding new features to it.
+
 
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
 
