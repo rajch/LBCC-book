@@ -42,13 +42,7 @@ Dr. Crenshaw started his series by creating a mini-program he called the Cradle.
 
 We will take a similar approach in this chapter. We already have a CodeGen class, which generates IL code in an executable file for us. We will use that, and build a class called Parser, which will "understand" mathematical expressions, and call CodeGen where necessary to generate executable code.
 
-  
+Our "cradle" will consist of a our CodeGen class, a new class called ParseStatus, a module called Compiler, and a starter version of the Parser class. The code in the first three units will not see much change after this chapter. We will, in this and subsequent chapters, mostly add more code to the Parser class.
 
-
- Our "cradle" will consist of a our CodeGen class, a new class called ParseStatus, a module called Compiler, and a starter version of the Parser class. The code in the first three units will not see much change after this chapter. We will, in this and subsequent chapters, mostly add more code to the Parser class.
-
-  
-
-
- Type in the following, and save as **ParseStatus.vb**.
+Type in the following, and save as **ParseStatus.vb**.
 
