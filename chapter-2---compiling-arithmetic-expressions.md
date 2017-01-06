@@ -323,3 +323,15 @@ Private Function ParseNumber() As ParseStatus
     Return result
 End Function
 ```
+Now, these methods are typical of everything we are going to do going forward, so an explanation is in order here. The parsing method, ParseNumber, calls the scanning method ScanNumber. ScanNumber checks if the current character from input is valid for a number or not, and adds it the current token if it is. If not, ScanNumber just exits.
+
+When ScanNumber returns, ParseNumber simply checks to see if there is anything in the current token. If not, this is an error, and ParseNumber returns a ParseStatus with the code 1. Otherwise, things are fine, and ParseNumber calls CodeGen to emit the number that is stored as the current token.
+
+Note the lack of error checking, exception handling etc. Especially note that the ScanNumber method does not return any kind of status information. Not needed, as we shall see shortly.
+
+This is the way it is going to be. We will create a Parse method for anything we want to understand, which will call a corresponding Scan method, which may use one or more Is methods to decide whether to proceed or to return. 
+
+The Scan methods will ensure that the property CurrentToken contains a valid token, or is empty if the input is unexpected or invalid.
+
+The Parse methods will always return a ParseStatus, which will contain an error code wherever needed.
+
