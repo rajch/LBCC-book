@@ -46,7 +46,7 @@ I was tempted to create a C\# compiler, just to spite the people from that camp 
 
 ## The compiler being developed
 
-As mentioned earlier, at the end of every chapter, we will have a working "compiler", one which produces ready-to-run executable files. In fact, starting from Chapter 3, the compiler we create will behave just like the big boys: it will be able to read source code from files and generate an executable. Our compiler will be different in just one way; it will stop compiling at the very first error it finds and reports. Later, we will enhance it to find and report multiple errors.
+As mentioned earlier, at the end of every chapter, we will have a working "compiler", one which produces ready-to-run executable files. In fact, starting from Chapter 2, the compiler we create will behave just like the big boys: it will be able to read source code from files and generate an executable. Our compiler will be different in just one way; it will stop compiling at the very first error it finds and reports. Later, we will enhance it to find and report multiple errors.
 
 ## The development environment
 
