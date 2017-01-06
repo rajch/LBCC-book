@@ -258,3 +258,68 @@ As we go along, we will add more methods to the Parser class for parsing \(metho
 
 When entering the code we will encounter in the rest of the chapter, it's a good idea to keep all methods of a given kind together. Put them in the appropriate \#Region section.
 
+A brief discussion of the "Cradle"
+Traditionally, the scanner and the parser are built separately. Here, we will combine the two operations in our single Parser class. As a convention, we will use method names staring with the word 'Scan' for scanning, and names starting with 'Parse' for parsing. For reading convenience, the Parser class has been provided with #Region sections, which clearly demarcate the scanner and parser parts.
+
+The class ParseStatus, as the name suggests, will be used to indicate the result of trying to understand the input. If its code field contains 0, the input is understood and valid, otherwise not.
+
+The class Parser will be instantiated by an external class, which is expected to provide it with a CLR TextReader object (that will provide the scanner part with access to source code), and also with a CodeGen object (which is an instance of the CodeGen class we created in the last chapter). The caller will then call the only Public method, which is Parse.
+
+The Parse method already contains code that will call the ScanLine method from the scanner part. The ScanLine method will read one line of source code from the TextReader. The line will be held in the variable m_ThisLine, and the position of the current character which needs to be looked at will be held in the variable m_CharPos.
+
+Provided the ScanLine method has actually read a line, the Parse will call the ParseLine method, which is where all the code that we will write in this chapter starts out.
+
+The ParseLine method will be responsible for understanding the input scanned by the ScanLine method.  It will access the CurrentToken property (in the scanner part of our class) to see the actual input, and call methods in the CodeGen class if it understands the input. It will return an instance of the ParseStatus class, which indicates a successful parse or an error.
+
+As we go along, we will add more methods to the Parser class for parsing (method names staring with 'Parse') and scanning (method names starting with 'Scan'). We will also add some “recognizer” methods for validating the input, which will be used by the scanning methods. These will start with the word 'Is'. 
+
+When entering the code we will encounter in the rest of the chapter, it's a good idea to keep all methods of a given kind together. Put them in the appropriate #Region section.
+
+## First step
+
+As of right now, we begin with the assumption that parsing a line of source code means parsing a number, and nothing else. With that in mind, let us proceed to write a method to parse a number, which will depend on a method to scan a number, which will depend on a method which can tell whether the current character being read is valid for a number or not. Add the following methods to the Parser class in **Parser.vb**. As mentioned, it's a good idea to add them to relevant sections of the source file.
+
+```vbnet
+Private Function IsNumeric(ByVal c As Char) As Boolean
+    Dim result As Boolean
+
+    If Char.IsDigit(c) Then
+        ' Use the CLR's built-in digit recognition
+        result = True
+    Else
+        result = False
+    End If
+
+    Return result
+End Function
+
+Private Sub ScanNumber()
+    m_CurrentTokenBldr = New StringBuilder
+
+    Do While m_CharPos < m_LineLength
+        If Not IsNumeric(LookAhead) Then
+            Exit Do
+        End If
+        m_CurrentTokenBldr.Append(LookAhead)
+        m_CharPos += 1
+    Loop
+End Sub
+
+Private Function ParseNumber() As ParseStatus
+    Dim result As ParseStatus
+
+    ' Ask the scanner to read a number
+    ScanNumber()
+
+    If TokenLength = 0 Then
+        result = CreateError(1, " a number")
+    Else
+        ' Get the current token, and
+        ' Emit it
+        m_Gen.EmitNumber(CInt(CurrentToken))
+        result = CreateError(0, "Ok")
+    End If
+
+    Return result
+End Function
+```
