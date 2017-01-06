@@ -4,4 +4,5 @@
 * [Preface](preface.md)
 * [The Development Environment](the-development-environment.md)
 * [Chapter 1 - Code Generation](chapter1.md)
+* [Chapter 2 - Compiling Arithmetic Expressions](chapter-2---compiling-arithmetic-expressions.md)
 
