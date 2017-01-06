@@ -42,7 +42,7 @@ In many ways, the approach itself is slightly biased towards a Basic programmerâ
 
 A compiler compiles some source language into executable code. Which one should we compile?
 
-I was tempted to create a C\# compiler, just to spite the people from that camp who say "your language compiler is written using our language". But what we are going to do is create a new language, called **LBCC** after the book. I have not decided the complete feature set for LBCC. We will define the language as we go along.
+I was tempted to create a C\# compiler, just to spite the people from that camp who say "your language compiler is written using our language". But what we are going to do is create a new language, called **SIC**, which stands for **S**imple **I**nstruction **C**ode. I have not decided the complete feature set for SIC. We will define the language as we go along.
 
 ## The compiler being developed
 
@@ -57,6 +57,4 @@ This topic now merits its own chapter. That's the [next one](/the-development-en
 ## Conclusion
 
 This is, first and foremost, a "fun" book. The primary aim is to create a running compiler from scratch, and secondary aim is to learn a little bit about the arcane art of compiler construction in the process. I hope you enjoy reading and working with it as much as I enjoyed writing it.
-
-[^1]: **Let's Build a Compiler**, by Dr. Jack Crenshaw. [http://compilers.iecc.com/crenshaw/](http://compilers.iecc.com/crenshaw/)
 

@@ -531,7 +531,7 @@ In this chapter, we learned how the CLR "virtual machine" works. We also created
 
 A compiler translates some source code into object code. In this chapter, we demonstrated the object code part. In the next chapter, we will start looking at how to deal with the source code part.
 
-
+---
 [^1]: Wikipedia article about registers \([https://en.wikipedia.org/wiki/Processor\_register](https://en.wikipedia.org/wiki/Processor_register)\)
 
 [^2]: Wikipedia article about stack machines \([https://en.wikipedia.org/wiki/Stack\_machine](https://en.wikipedia.org/wiki/Stack_machine)\)
