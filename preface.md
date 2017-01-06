@@ -10,7 +10,7 @@ For many years, I wanted to write a compiler. I read, or tried to read, a lot of
 
 Then, I hit the jackpot; I read a brilliant article series called "Let's Build a Compiler" by Dr. Jack Crenshaw. I love Dr. Crenshaw's approach of learning by doing, showing ONE way of doing things while mentioning that there were others, avoiding jargon until unavoidable and explaining it lucidly when not, and above all, keeping it simple. This article series taught me more than all the books I had read so far, and even the books started making more sense after I finished the series. "Let's Build a Compiler", © Jack Crenshaw[^1], is definitely recommended reading for anyone who wants to learn about how compilers are built.
 
-When the CLR appeared, I was delighted with the features provided for compiler writers, and quickly wrote my first CLR compiler. As happens very often with quick-and-very-dirty projects, a month later, I could not read what I had written. So I started re-writing it, this time being careful to document what I wrote. That documentation is what became chapters two and three of this book.
+When the CLR appeared, I was delighted with the features provided for compiler writers, and quickly wrote my first CLR compiler. As happens very often with quick-and-very-dirty projects, a month later, I could not read what I had written. So I started re-writing it, this time being careful to document what I wrote. That documentation is what became chapters one and two of this book.
 
 ## Goal
 
