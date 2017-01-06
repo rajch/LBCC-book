@@ -40,7 +40,7 @@ This book, as mentioned in the first chapter, is inspired by Dr. Jack Crenshaw's
 
 Dr. Crenshaw started his series by creating a mini-program he called the Cradle. This contained some boilerplate code, to do things like input/output, error reporting and so on. All exercises in the series were built on top of that cradle.
 
-We will take a similar approach in this chapter. We already have a CodeGen class, which generates IL code in an executable file for us. We will use that, and build a class called Parser, which will do actual understand the mathematical expression and calling CodeGen where necessary to generate executable code.
+We will take a similar approach in this chapter. We already have a CodeGen class, which generates IL code in an executable file for us. We will use that, and build a class called Parser, which will "understand" mathematical expressions, and call CodeGen where necessary to generate executable code.
 
   
 
