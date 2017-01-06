@@ -93,3 +93,168 @@ Public Class ParseStatus
 End Class
 ```
 
+Next, type in the following, and save as **Parser.vb**.
+
+```vbnet
+Imports System
+Imports System.IO
+Imports System.Text
+
+Public Class Parser
+
+#Region "Fields"
+    Private m_InputStream As TextReader
+    Private m_Gen As CodeGen
+
+    ' The current line being translated
+    Private m_ThisLine As String
+    Private m_LineLength As Integer = 0
+
+    ' The position of the line being translated
+    Private m_linePos As Integer = 0
+    ' The character position currently being looked at
+    Private m_CharPos As Integer = 0
+
+    ' The current program element
+    Private m_CurrentTokenBldr As StringBuilder
+#End Region
+
+#Region "Helper Functions"
+    Private Function CreateError( _
+        ByVal errorcode As Integer, _
+        ByVal errorDescription As String _
+        ) As ParseStatus
+
+        Dim result As ParseStatus
+        Dim message As String
+
+        Select Case errorcode
+            Case 0
+                message = "Ok."
+            Case 1
+                message = String.Format( _
+                            "Expected {0}", _
+                            errorDescription _
+                )
+        End Select
+
+        result = New ParseStatus(errorcode, _
+                    message, _
+                    m_CharPos + 1, _
+                    m_linePos)
+
+
+        Return result
+    End Function
+#End Region
+
+#Region "Recognizers"
+
+#End Region
+
+#Region "Scanner"
+    Private ReadOnly Property LookAhead() As Char
+        Get
+            Dim result As Char
+            If m_CharPos < m_LineLength Then
+                result = m_ThisLine.Chars(m_CharPos)
+            Else
+                result = " "c
+            End If
+            Return result
+        End Get
+    End Property
+
+    Private ReadOnly Property CurrentToken() As String
+        Get
+            Return m_CurrentTokenBldr.ToString()
+        End Get
+    End Property
+
+    Private ReadOnly Property TokenLength() As Integer
+        Get
+            Return m_CurrentTokenBldr.Length()
+        End Get
+    End Property
+
+    Private ReadOnly Property EndOfLine() As Boolean
+        Get
+            Return m_CharPos >= m_LineLength
+        End Get
+    End Property
+
+    Private Function ScanLine() As Boolean
+        Dim result As Boolean
+        Dim line As String
+
+        line = m_InputStream.ReadLine()
+        If line Is Nothing Then
+            result = False
+        Else
+            ' set up line, line length, 
+            ' increment line counter, 
+            ' and set character position back to 0
+            m_ThisLine = line
+            m_LineLength = m_ThisLine.Length
+            m_linePos += 1
+            m_CharPos = 0
+            result = True
+        End If
+
+        Return result
+    End Function
+#End Region
+
+#Region "Parser"
+    Private Function ParseLine() As ParseStatus
+        Dim result As ParseStatus
+
+        Return result
+    End Function
+#End Region
+
+    Public Function Parse() As ParseStatus
+        Dim result As ParseStatus
+        If ScanLine() Then
+            result = ParseLine()
+        End If
+        Return result
+    End Function
+
+    Public Sub New( _
+        ByVal newStream As TextReader, _
+        ByVal newGen As CodeGen _
+        )
+
+        m_InputStream = newStream
+        m_Gen = newGen
+    End Sub
+End Class
+```
+
+## A brief discussion of terms
+
+Some of the words used, including the name of the class, Parser, are familiar terms in compiler construction. We'll discuss these briefly here, with a more complete description at the end of the chapter.
+
+In translating source code to object code, a part of the compiler is responsible for reading \(or scanning\) the source code, and another part for understanding \(or parsing\) it to ensure grammatical correctness. The first part is called a _lexical analyzer_, a _lexical scanner_ or just _scanner_. The second part is called a _parser_. These work hand-in-hand.
+
+As the scanner reads the source code, it encounters strings of characters, which have special meaning to the parser. For example, a string of characters might be a variable, or a number, or an operator such as + or -. Such a string of characters, which has a collective meaning, is called a _token_. The scanner's job is to read the source and produce tokens. The parser checks the tokens themselves, as well as the sequence in which they appear, for grammatical correctness.
+
+## A brief discussion of the "Cradle"
+
+Traditionally, the scanner and the parser are built separately. Here, we will combine the two operations in our single Parser class. As a convention, we will use method names staring with the word 'Scan' for scanning, and names starting with 'Parse' for parsing. For reading convenience, the Parser class has been provided with \#Region sections, which clearly demarcate the scanner and parser parts.
+
+The class ParseStatus, as the name suggests, will be used to indicate the result of trying to understand the input. If its code field contains 0, the input is understood and valid, otherwise not.
+
+The Parser class will be instantiated by an external class, which is expected to provide it with a CLR TextReader object \(that will provide the scanner part with access to source code\), and also with a CodeGen object \(which is an instance of the CodeGen class we created in the last chapter\). The caller will then call the only Public method, which is Parse.
+
+The Parse method already contains code that will call the ScanLine method from the scanner part. The ScanLine method will read one line of source code from the TextReader. The line will be held in the variable m\_ThisLine, and the position of the current character which needs to be looked at will be held in the variable m\_CharPos.
+
+Provided the ScanLine method has actually read a line, the Parse method will call the ParseLine method, which is where all the code that we will write in this chapter starts out.
+
+The ParseLine method will be responsible for understanding the input scanned by the ScanLine method. It will access the CurrentToken property \(in the scanner part of our class\) to see the actual input, and call methods in the CodeGen class if it understands the input. It will return an instance of the ParseStatus class, which indicates a successful parse or an error.
+
+As we go along, we will add more methods to the Parser class for parsing \(method names staring with 'Parse'\) and scanning \(method names starting with 'Scan'\). We will also add some “recognizer” methods for validating the input, which will be used by the scanning and parsing methods. These will start with the word 'Is'.
+
+When entering the code we will encounter in the rest of the chapter, it's a good idea to keep all methods of a given kind together. Put them in the appropriate \#Region section.
+
