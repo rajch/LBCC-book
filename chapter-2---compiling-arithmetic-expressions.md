@@ -625,4 +625,4 @@ Private Function ParseTerm() As ParseStatus
     Return result
 End Function
 ```
-
+Finally, we need to tell ParseLine, the root of our parser, to process Terms instead of Numbers. Here is the rewritten Par
