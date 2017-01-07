@@ -557,3 +557,72 @@ Div
 ```
 
 Which, if you remember the last chapter, is exactly what we need.
+
+Let's write up the rules in code. Add the following code to the Parser class in **Parser.vb**. The names should tell you where you should ideally add them.
+
+```vbnet
+Private Function IsMulOrDivOperator(ByVal c As Char) As Boolean
+    Return "*/".IndexOf(c) > -1
+End Function
+
+Private Sub ScanMulOrDivOperator()
+    m_CurrentTokenBldr = New StringBuilder
+
+    If IsMulOrDivOperator(LookAhead) Then
+        m_CurrentTokenBldr.Append(LookAhead)
+        m_CharPos += 1
+    End If
+End Sub
+
+Private Function ParseFactor() As ParseStatus
+    Dim result As ParseStatus
+
+    result = ParseNumber()
+
+    SkipWhiteSpace()
+
+    Return result
+End Function
+
+Private Function ParseMulOrDivOperator() As ParseStatus
+    Dim result As ParseStatus
+    Dim currentoperator As String = CurrentToken
+
+    SkipWhiteSpace()
+
+    result = ParseFactor()
+
+    If result.Code = 0 Then
+        If currentoperator = "*" Then
+            m_Gen.EmitMultiply()
+        Else
+            m_Gen.EmitDivide()
+        End If
+    End If
+
+    Return result
+End Function
+
+Private Function ParseTerm() As ParseStatus
+    Dim result As ParseStatus
+
+    result = ParseFactor()
+
+    Do While result.Code = 0 _
+        AndAlso _
+        IsMulOrDivOperator(LookAhead)
+
+        ScanMulOrDivOperator()
+
+        If TokenLength = 0 Then
+            result = CreateError(1, "* or /")
+        Else
+            result = ParseMulOrDivOperator()
+            SkipWhiteSpace()
+        End If
+    Loop
+
+    Return result
+End Function
+```
+
