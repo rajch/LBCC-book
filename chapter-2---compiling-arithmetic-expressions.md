@@ -395,7 +395,7 @@ Run using:
 Compiler.exe
 ```
 
-The "compiler" will wait for input. If we type in any _single-digit_ integer number, followed by Enter, our compiler will write an executable file called **Test.exe**, and terminate saying "Done." At that point, we can run
+The "compiler" will wait for input. If we type in any integer number, followed by Enter, our compiler will write an executable file called **Test.exe**, and terminate saying "Done." At that point, we can run
 
 ```
 Test.exe
@@ -404,3 +404,17 @@ Test.exe
 to run the generated executable, which will faithfully echo the number we just typed.
 
 If we type anything other than a number, our "compiler" will terminate, with an accurate error message.
+
+## Error: Missing error
+Try this: run our "compiler", and type
+
+```
+12c
+```
+
+Basically, some digits followed by any non-digit character, followed by enter. What happens?
+
+Our "compiler" cheerfully accepts the digit part, and seems to just ignore anything that comes after it. This is because our scanner reads a number by starting with a digit, and then reading subsequent characters until it hits the first non-digit or the end of the line. Our parser then generates code from the current token, which is a string of digits. At this point, our parser does not specify that the current character, which was the first non-digit, is invalid. 
+
+For now, we will ignore this problem; as we enhance the parser to understand more about mathematical expressions, this will be taken care of.
+
