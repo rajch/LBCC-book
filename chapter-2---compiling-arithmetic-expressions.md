@@ -537,7 +537,23 @@ Let’s understand this with some examples:
 |Input|Scanned as|
 |-----|----------|
 |1|This is a valid term, because it is a single number, or factor.|
-|1 * 2|The “* 2” part is a valid mulordiv operator, as it is a * sign followed by a factor. The “1” part is a valid factor. Hence, the whole input is a valid term.|
-|1 * 6 / 3|This is also a valid term, because it is one factor (“1”) followed by two mulordivoperators (“* 6” and “/ 3”)|
+|1*2|The “* 2” part is a valid mulordiv operator, as it is a * sign followed by a factor. The “1” part is a valid factor. Hence, the whole input is a valid term.|
+|1*6/3|This is also a valid term, because it is one factor (“1”) followed by two mulordivoperators (“* 6” and “/ 3”)|
 
+What should happen when each of these get parsed? 
 
+1. A factor, being a number, should cause the number to be emitted on to the stack.
+2. A mulordivoperator is a symbol, followed compulsorily by a factor. It is not valid until the factor after the symbol has been parsed. If the factor got parsed successfully, then the number would already be emitted to the stack, as per the rule above. So, a successful parse for a mulordivoperator simply has to emit the **Mul** or **Div** instruction to the stack.
+3. A term is a combination of the above.
+
+If we follow the rules written above, the term “1*6/3” should translate to CIL as follows:
+
+```msil
+Ldc_i4 1
+Ldc_i4 6
+Mul
+Ldc_i4 3
+Div
+```
+
+Which, if you remember the last chapter, is exactly what we need.
