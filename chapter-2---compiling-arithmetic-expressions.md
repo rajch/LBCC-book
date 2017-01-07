@@ -474,5 +474,47 @@ What this requires is a change to the recognizer method, IsNumeric. Right now, i
 So, here is the rewritten IsNumeric.
 
 ```vbnet
+Private Function IsNumeric(ByVal c As Char) As Boolean
+    Dim result As Boolean
 
+    If Char.IsDigit(c) Then
+        ' Use the CLR's built-in digit recognition
+        result = True
+    ElseIf "+-".IndexOf(c) <> -1 And _
+        TokenLength = 0 Then
+        ' If the symbol being cheked is + or -
+        ' AND we are at the START of the current
+        ' token
+        result = True
+    Else
+        result = False
+    End If
+
+    Return result
+End Function
+```
+Also, we need to add an additional check in ParseNumber. After our modification of IsNumber, a single – or a +, by itself, would appear to be a correct number, and we would have trouble at the time of code generation. We need to check for this special case in ParseNumber, because as we discussed, ensuring correctness is the parser's job. Here is the rewritten ParseNumber.
+
+```vbnet
+Private Function ParseNumber() As ParseStatus
+    Dim result As ParseStatus
+
+    ' Ask the scanner to read a number
+    ScanNumber()
+
+    If TokenLength = 0 Then
+        result = CreateError(1, "a number")
+    ElseIf TokenLength = 1 AndAlso _
+            Not Char.IsDigit(CurrentToken.Chars(0)) _
+            Then 
+        result = CreateError(1, "a number")
+    Else
+        ' Get the current token, and
+        ' Emit it
+        m_Gen.EmitNumber(CInt(CurrentToken))
+        result = CreateError(0, "Ok")
+    End If
+
+    Return result
+End Function
 ```
