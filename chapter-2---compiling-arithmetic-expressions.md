@@ -381,3 +381,26 @@ Nothing fancy here. Just creating an instance of CodeGen and an instance of Pars
 
 Actually, there is something just a little fancy here. We are passing Console.In to the Parser instance. Console.In is a TextReader. When this compiler runs, we will be able to type in our "source code" right in the console, and get immediate results.
 
+Okay, let us compile the lot. You may want to review the instructions in the [Development Environment](/the-development-environment.md) chapter.
+
+Compile with:
+
+```
+vbc /out:Compiler.exe Compiler.vb Parser.vb CodeGen.vb ParseStatus.vb
+```
+
+Run using:
+
+```
+Compiler.exe
+```
+
+The "compiler" will wait for input. If we type in any _single-digit_ integer number, followed by Enter, our compiler will write an executable file called **Test.exe**, and terminate saying "Done." At that point, we can run
+
+```
+Test.exe
+```
+
+to run the generated executable, which will faithfully echo the number we just typed.
+
+If we type anything other than a number, our "compiler" will terminate, with an accurate error message.
