@@ -418,3 +418,61 @@ Our "compiler" cheerfully accepts the digit part, and seems to just ignore anyth
 
 For now, we will ignore this problem; as we enhance the parser to understand more about mathematical expressions, this will be taken care of.
 
+## White (?) Space
+Try this: run our "compiler", and type a single space (or multiple spaces) followed by a valid number. What happens?
+
+Our parser knows only about numbers. Our scanner stops as soon as it hits a non-digit-character. Therefore, we get an error.
+
+There are some programming languages, such as COBOL, where white space is significant. How many spaces (or tabs) you put conveys some useful information about the program. However, most modern languages (Python being a notable exception) do not treat white space as significant, which means any amount of space can be left before and after anything. Our "language" should also ignore white space.
+
+Let us adapt our compiler to deal with white space (does anyone know why it’s called "white"?) by adding a scanning method. White space does not have to be "understood" (i.e., no code needs to be generated for it), therefore we don't need a parsing method.
+
+Add the following to the Parser class in **Parser.vb**. The first, as the name suggests, should be put in the Recognizers section. The second, although not following our naming convention, belongs in the Scanner section. We’ll use the different name to remind ourselves that white space is scanned, but not parsed.
+
+```vbnet
+Private Function IsWhiteSpace(ByVal c As Char) As Boolean
+    Return Char.IsWhiteSpace(c)
+End Function
+
+Private Sub SkipWhiteSpace()
+    Do While IsWhiteSpace(LookAhead)
+        If EndOfLine() Then
+            Exit Do
+        Else
+            m_CharPos += 1
+        End If
+    Loop
+End Sub
+```
+Finally, in the method ParseLine, just before the call to ParseNumber(), put in a call to SkipWhiteSpace. Here is the rewritten ParseLine method for your convenience.
+
+```vbnet
+Private Function ParseLine() As ParseStatus
+    Dim result As ParseStatus
+
+    SkipWhiteSpace()
+
+    result = ParseNumber()
+
+    If result.code = 0 Then
+        m_Gen.EmitWriteLine()
+    End If
+
+    Return result
+End Function
+```
+Compile and run. This time, we can put as many spaces before or after a number, it will still successfully compile.
+
+## Don't be negative
+
+Now, try typing any negative number for our compiler. What happens?
+
+There are many ways to deal with negativity. We will choose to treat a number with a leading minus sign (and no space between the minus sign and the number itself) as a negative number. While we are at it, we will also allow a positive number to be represented with a (optional) plus sign before it. 
+
+What this requires is a change to the recognizer method, IsNumeric. Right now, if the current character being considered is a digit, IsNumeric returns True, and ScanNumber proceeds to add it to the current token. What we have to do is this: _if we are at the start of a token_, then IsNumeric should allow the "+" or "-" symbols as valid. ScanNumber will take care of the rest.
+
+So, here is the rewritten IsNumeric.
+
+```vbnet
+
+```
