@@ -377,4 +377,7 @@ Module Compiler
     End Sub
 End Module
 ```
+Nothing fancy here. Just creating an instance of CodeGen and an instance of Parser, calling Parser.Parse, and if it succeeds, asking the CodeGen instance to save the results in a file called Test.exe.
+
+Actually, there is something just a little fancy here. We are passing Console.In to the Parser instance. Console.In is a TextReader. When this compiler runs, we will be able to type in our "source code" right in the console, and get immediate results.
 
