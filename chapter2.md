@@ -538,7 +538,7 @@ Let’s understand this with some examples:
 |-----|----------|
 |1|This is a valid term, because it is a single number, or factor.|
 |1*2|The "\* 2" part is a valid mulordiv operator, as it is a * sign followed by a factor. The "1" part is a valid factor. Hence, the whole input is a valid term.|
-|1*6/3|This is also a valid term, because it is one factor (“1”) followed by two mulordivoperators (“* 6” and “/ 3”)|
+|1*6/3|This is also a valid term, because it is one factor ("1") followed by two mulordivoperators (“* 6” and “/ 3”)|
 
 What should happen when each of these get parsed? 
 
