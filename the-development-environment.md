@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The code that is presented in this book reuires a Visual Basic compiler that targets the CLR. In 2016, that gives us two good options: the Microsoft .NET Framework and Mono. The hot new .NET Core is not yet viable.
+The code that is presented in this book requires a Visual Basic compiler that targets the CLR. In 2016, that gives us two good options: the Microsoft .NET Framework and Mono. The hot new .NET Core is not yet viable.
 
 ## Getting the code
 
