@@ -48,7 +48,7 @@ Here are some of the instructions that are available in CIL. Instructions are al
 |------|------------|
 |LdC_i4|Stands for LoaD Constant Integer of size 4-bytes. As the name suggests, it is used for loading a 32-bit integer number on the stack. There are equivalent instructions for loading other kinds of data.|
 |Add|Pops the last two values on the stack, adds them together, and loads the result on the stack.|
-|Sub|Pops the last two values on the stack. Then, the first value popped is subtracted from the second value popped. So, the instruction sequence:<br />Ldc_i4 2<br />Ldc_i4 3<br />Sub<br /> would cause 2 to be loaded, then 3 to be loaded, then 3 to be popped, then 2 to be popped, then 3 (the first value popped) to be subtracted from 2 (the second value popped) and finally, the result, -1, would be pushed back on to the stack. The stack would only have the value   –1 at the end of the sequence.|
+|Sub|Pops the last two values on the stack. Then, the first value popped is subtracted from the second value popped. So, the instruction sequence:<br />**LdC_i4** 2<br />**LdC_i4** 3<br />**Sub**<br /> would cause 2 to be loaded, then 3 to be loaded, then 3 to be popped, then 2 to be popped, then 3 (the first value popped) to be subtracted from 2 (the second value popped) and finally, the result, -1, would be pushed back on to the stack. The stack would only have the value   –1 at the end of the sequence.|
 |Mul|Pops the last two values on the stack, multiplies them, and loads the result on the stack.|
 |Div|Pops the last two values on the stack. Then, the second value popped is divided by the first value popped. The result is pushed back on the stack.|
 
