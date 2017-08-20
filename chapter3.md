@@ -301,3 +301,156 @@ Compile and run. Test with the following strings:
 "So " & "does " + "this"
 "And """ & "even" & """ this."
 ```
+
+## Mixing it up
+So, at this point, we have a parser that can parse numeric expressions, and string expressions. What we now want to do is to make it parse both, interchangably.
+
+Our parsing is line-oriented, that is, we parse one line at a time. Therefore, a given line can be either a string expression or a numeric expression. But successive lines can be either one of the two. And therein lies the problem.
+
+How can we tell whether a line contains a string or a numeric expression? Simple, by looking at the Lookahead at the start of a line. If it's a ", the expression is a string. If it's a digit, the expression is a number. If it's a minus or a plus sign, it's a number. Anything else is invalid input.
+
+Actually, there is one pesky character that can begin both numeric and string expressions; the ( character. But we will deal with that later. As of now, let us assume that parentheses can only be used in numeric expressions.
+
+This is why the kind of parsing we are doing is called Predictive Parsing. Because we can predict what is coming based on a single Lookahead character.
+
+## Types
+We could use just the prediction technique we just discussed to finish the Parser for this chapter. But, looking slightly ahead, I want to discuss Types.
+
+In this chapter, we have made our parser capable of dealing with two distinct data types, number and string, each with their own set of operators and expression rules. In the near future, we might be adding more types. It makes sense for the parser to keep track of the type of the expression last processed. This information can be used in many situations, one of which we will see right here shortly.
+
+How do we store the type? We could use an enumeration, with 1 for number, 2 for string etc. But I am going to jump the gun a bit, and use a variable of type Type (don't beat me up). 
+
+We have met the ```System.Type``` class before, in CodeGen. It can be used to hold a representation of any data type understood by the CLR. We will create a field in our parser class, which will be an instance of the ```System.Type``` class, to hold the type of the last expression processed.
+
+Add the following to the Fields section of the ```Parser``` class, in **Parser.vb**.
+
+```vbnet
+' The type of the last processed expression
+Private m_LastTypeProcessed As Type 
+```
+
+And in the ```DoNumericExpression``` and ```DoStringExpression``` methods, we need to set the m_LastTypeProcessed field. Change them as shown below.
+
+```vbnet
+Private Function ParseNumericExpression() As ParseStatus
+    Dim result As ParseStatus
+
+    result = ParseTerm()
+
+    Do While result.Code = 0 _
+        AndAlso _
+        IsAddOrSubOperator(LookAhead)
+
+        ScanAddOrSubOperator()
+
+        If TokenLength = 0 Then
+            result = CreateError(1, "+ or -")
+        Else
+            result = ParseAddOrSubOperator()
+            SkipWhiteSpace()
+        End If
+    Loop
+
+    m_LastTypeProcessed = Type.GetType("System.Int32")
+
+    Return result
+End Function
+
+Private Function ParseStringExpression() As ParseStatus
+            
+    Dim result As ParseStatus
+    
+    result = ParseString()
+    
+    Do While result.code=0 _
+        AndAlso _
+        IsConcatOperator(LookAhead) 
+        
+        ScanConcatOperator()
+        
+        If TokenLength=0 Then
+            result = CreateError(1, "& or +")
+        Else
+            result = ParseConcatOperator()
+            SkipWhiteSpace()
+        End If
+    Loop
+
+    m_LastTypeProcessed = Type.GetType("System.String")
+
+    Return result	
+End Function
+```
+
+Note that we are using the ```GetType``` method of the ```Type``` class to get the correct Type object. The names we use as parameters, System.Int32 and System.String, are the actual names of the CLR classes which represent 32-bit integers and strings respectively.
+
+Next, we will need to create a generic ```ParseExpression method```, which will call ```ParseNumericExpression``` or ```ParseStringExpression``` as needed. Here it is.
+
+```vbnet
+Private Function ParseExpression( _
+                    Optional ByVal expressiontype _
+                        As Type = Nothing) _
+        As ParseStatus
+
+    Dim result As ParseStatus
+
+    ' Since we are doing the work of the scanner by using the
+    ' lookahead character, we need to initialize the token
+    ' builder
+    m_CurrentTokenBldr = New StringBuilder
+
+    If LookAhead.Equals(""""c) Then
+        result = ParseStringExpression()
+    ElseIf IsNumeric(LookAhead) Then
+        result = ParseNumericExpression()
+    ElseIf LookAhead.Equals("("c) Then
+        ' For now, assuming only numeric expressions can use ()
+        result = ParseNumericExpression()
+    Else
+        result = CreateError(1, "a numeric or string expression")
+    End If
+
+    Return result
+End Function
+```
+
+Notice the optional parameter called ```expressiontype```. If ```ParseExpression``` itself determines the type, why do we need that? Right now, we don't. We will need it a few chapters down the line. We ignore it for now.
+
+Finally, as usual, we change our much-abused ```ParseLine```, to call ```ParseExpression``` rather than anything else. And here is where we can use the information about the last type processed.
+
+When we modified ```ParseLine``` to use ```ParseStringExpression``` instead of ```ParseNumericExpression```, we also changed it to use the ```EmitWriteLineString``` method of CodeGen, rather than ```EmitWriteLine```. In the new scenario, either one can be called, depending on the last type processed. 
+
+Before we call ParseExpression, we reset the ```m_LastTypeProcessed``` field to nothing. After the call, we use value of the ```m_LastTypeProcessed``` field to determine which WriteLine to call. Here is the (completely) revised ParseLine:
+
+```vbnet
+Private Function ParseLine() As ParseStatus
+    Dim result As ParseStatus
+    
+    SkipWhiteSpace()
+    
+    m_LastTypeProcessed = Nothing
+    
+    result = ParseExpression()
+    
+    If result.code = 0 Then
+        If Not EndOfLine() Then
+            result = CreateError(1, "end of statement")
+        Else
+            If m_LastTypeProcessed Is System.Int32 Then
+                m_Gen.EmitWriteLine()
+            ElseIf m_LastTypeProcessed Is System.String Then
+                m_Gen.EmitWriteLineString()
+            End If
+        End If
+    End If
+    
+    Return result
+End Function
+```
+
+Compile and run. Now, we should be able to enter either numeric expressions or string expressions, and have them compiled and executed correctly. If we make a mistake, our compiler will give an accurate error message.
+
+## Conclusion
+In this rather short chapter, we learned how to add strings and string expressions to our compiler. To do this, we added the capability of emitting a string concatenation instruction to our CodeGen class. We also added the capability of distinguishing between different types of data to our parser.
+
+In the next chapter, we introduce yet another data type, and corresponding expressions: the Boolean.
