@@ -23,8 +23,6 @@ A Boolean condition is expressed as an expression, followed by a _relational ope
 |<= or =<|Less than or equal to. The opposite of the above.|
 |<|Less than. The condition evaluates to `true` if the expression on the left produces a value that is less than the one on the right, `false` otherwise.|
 |`>=` or `=>`|Greater than or equal to. The opposite of the above|
-|||
-
 
 Did you notice the difference from the last two chapters? For numbers and strings, the basic unit of parsing was a single piece of data: a number or a string. The condition has three pieces of data, and two of them are expressions - which have to be of the same type. 
 
@@ -64,7 +62,7 @@ There are three such opcodes:
 |Ceq|Pops the last two values on the stack, and if they are equal, pushes an integer 1 on the stack, otherwise pushes an integer 0. As of now, we will consider the popped values to be integer numbers.|
 |Cgt|Pops the last two values on the stack, and compares them. If the _first_ value is strictly greater than the _second_ value, an integer 1 is pushed onto the stack, otherwise 0 is pushed. Note that _first_ and _second_ here refer to the order in which the values were pushed on to the stack. So, the instruction sequence:<br />**Ldc.i4** 2<br />**Ldc.i4** 3<br />**Cgt**<br />would result in 0 being pushed back to the stack.|
 |Clt|Pops the last two values on the stack, and compares them. If the _first_ value is strictly less than the _second_ value, an integer 1 is pushed onto the stack, otherwise 0 is pushed.|
-|||
+
 
 Generating code for these operations is straightforward. Add the following to **CodeGen.vb**
 
@@ -112,7 +110,7 @@ Public Sub EmitLessThanOrEqualToComparison
 End Sub
 ```
 
-Before we go on to the parsing, we will add another case of WriteLine, which will allow the emitted executable to print Booleans. Add the following to **CodeGen.vb**:
+Before we go on to the parsing, we will add another case of `WriteLine`, which will allow the emitted executable to print Booleans. Add the following to **CodeGen.vb**:
 
 ```vbnet
 Public Sub EmitWriteLineBoolean()
@@ -141,7 +139,6 @@ We will allow the following relational operators:
 |=,==,===|Equality. Allowing all these forms should make people who like most popular programming languages happy.|
 |>, <, >=, <=, =>, =<|Just what they look like. We even support the seldom-used =< and =>, which have the same meaning as >= and <= respectively. The only other language I can think of that uses these operators is Ada.|
 |<>,!=,!==|Inequality. Once again, we support both popular forms. We can _try_ to please everybody. Except the FORTRAN, TCL and shell people.|
-|||
 
 Where an operator uses two or more symbols (like <=), we do not allow white space between them. 
 
@@ -233,7 +230,7 @@ End Function
 
 Note that for the first time, we have a method whose name begins with Generate. This is just a convenience, to handle the large number of relational operators. It should be placed in the parser section.
 
-Also note that as discussed in First Steps, we are only processing conditions involving numeric expressions for now. Hence, the GenerateRelOperation method calls CodeGen only if the condition type is numeric.
+Also note that as discussed in First Steps, we are only processing conditions involving numeric expressions for now. Hence, the `GenerateRelOperation` method calls CodeGen only if the condition type is numeric.
 
 Now, we need a parser for the condition itself. And here, we face something different from before.
 
@@ -299,9 +296,9 @@ End Function
 Note that in this parser too, we account for the fact that a Boolean expression can be detected after an expression has already been processed. Finally, as in all our root expression-parsing methods, we set the last type processed at successful completion. In this case, it is Boolean.
 
 ## Mixing it up
-Now that we have a Boolean expression parser, we have to call it where appropriate. Which, at this point in our compiler construction story, is the ParseExpression method. Remember, the lookahead character is not helpful in this case.
+Now that we have a Boolean expression parser, we have to call it where appropriate. Which, at this point in our compiler construction story, is the `ParseExpression` method. Remember, the lookahead character is not helpful in this case.
 
-Modify the ParseExpression method in **Parser.vb** as follows:
+Modify the `ParseExpression` method in **Parser.vb** as follows:
 
 ```vbnet
 Private Function ParseExpression( _
@@ -342,9 +339,9 @@ Private Function ParseExpression( _
 End Function
 ```
 
-See how we make the check for a relational operator after the lookahead-predicted initial parse?
+See how we make the check for a relational operator _after_ the lookahead-predicted initial parse?
 
-Finally, our ParseLine method has to be modified to generate the Boolean edition of WriteLine when required. Modify it in **Parser.vb** as follows:
+Finally, our `ParseLine` method has to be modified to generate the Boolean edition of `WriteLine` when required. Modify it in **Parser.vb** as follows:
 
 ```vbnet
 Private Function ParseLine() As ParseStatus
@@ -487,7 +484,7 @@ For now, we will cause our string comparisons to exclusively use the ordinal met
 Note that I am omitting a great deal of detail here. As has been the practice so far, we deal with just as much as we need. ~~If you would like to dig deeper, the .NET Framework SDK documentation contains huge amounts of information on the topic of cultures, string comparisons etc., replete with excellent examples. Look under globalization.~~ I no longer vouch for either the availability or the quality of any documentation provided by Microsoft; especially the Developer Division.
 
 ## Strings are not numbers
-We cannot use the IL comparison opcodes (`Ceq`, `Cgt` and `Clt`) to compare strings. Instead, just like we did for string concatenation, we will borrow a shared (static) method of the string class, which is provided by the CLR itself.
+We cannot use the IL comparison opcodes (`Ceq`, `Cgt` and `Clt`) to compare strings. Instead, just like we did for string concatenation, we will borrow a shared (static) method of the `System.String` class, which is provided by the CLR itself.
 
 The method we want is called `CompareOrdinal`. It expects two strings on the stack (let's call them string A and string B, in that order of pushing), and compares them using the ordinal comparison method described above. Depending on the result of the comparison, it pushes a value on the stack. The value pushed is a negative number if string A is less than string B, a positive number if string A is greater than string B, or zero if they are equal.
 
