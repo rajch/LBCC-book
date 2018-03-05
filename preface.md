@@ -57,4 +57,3 @@ This topic now merits its own chapter. That's the [next one](/the-development-en
 ## Conclusion
 
 This is, first and foremost, a "fun" book. The primary aim is to create a running compiler from scratch, and secondary aim is to learn a little bit about the arcane art of compiler construction in the process. I hope you enjoy reading and working with it as much as I enjoyed writing it.
-

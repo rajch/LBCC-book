@@ -31,4 +31,3 @@ The .NET Framework itself, since the beginning, included a Visual Basic compiler
 In 2016, we have the Visual Studio Express editions, and even the full-fledged Visual Studio Community Edition, which includes the modern .NET Platform SDK. Mono, meanwhile, has gained a very respectable Visual Basic compiler called `vbnc`.
 
 I have moved away from Windows. All the code in this book is now compiled on Ubuntu Linux 16.04, using mono 4.2.1 and vbnc 0.0.0.5943. The results should run unmodified on any CLR.
-

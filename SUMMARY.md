@@ -7,4 +7,4 @@
 * [Chapter 2 - Compiling Arithmetic Expressions](chapter2.md)
 * [Chapter 3 - Strings](chapter3.md)
 * [Chapter 4 - Booleans Part I](chapter4.md)
-
+* [Interlude - Grammars and BNF](interlude-bnf.md)

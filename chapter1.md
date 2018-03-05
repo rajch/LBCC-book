@@ -22,7 +22,7 @@ Instructions operate on one or more units of data, and can result in more data b
 
 The number of registers available, the actual instructions that operate on then, and the optimal way that they can be used differs from microprocessor to microprocessor. This makes life difficult for compiler writers, as they would have to deeply understand processor architectures to generate optimal code.
 
-The difficulty can be mitigated somewhat by splitting the process of compilation into two parts:_front-end_ and _back-end_. Instead of generating code for an actual microprocessor, the front-end compiler would generate code for an intermediate, hypothetical “virtual microprocessor”, which would define a neutral set of registers and instructions. The back-end compiler would be be responsible for converting the “intermediate language” to the real instructions for a target microprocessor, in a way that optimally uses the registers available to the target.
+The difficulty can be mitigated somewhat by splitting the process of compilation into two parts:_front-end_ and _back-end_. Instead of generating code for an actual microprocessor, the front-end compiler would generate code for an intermediate, hypothetical “virtual microproccessor”, which would define a neutral set of registers and instructions. The back-end compiler would be be responsible for converting the “intermediate language” to the real instructions for a target microprocessor, in a way that optimally uses the registers available to the target.
 
 This makes life simpler by having a single well-defined “virtual machine”, whose “intermediate language” \(meaning registers and instruction set\) is the only one that front-end compiler writers have to generate. Also, multiple back-ends may be written, so that a single program compiled to target the “virtual machine” can finally run on multiple real microprocessors.
 
@@ -52,7 +52,6 @@ Here are some of the instructions that are available in CIL. Instructions are al
 |Mul|Pops the last two values on the stack, multiplies them, and loads the result on the stack.|
 |Div|Pops the last two values on the stack. Then, the second value popped is divided by the first value popped. The result is pushed back on the stack.|
 
-
 If we were creating a compiler for a language which only performed arithmetic using integer numbers, these would be all the instructions we need. In fact, most classical compiler texts begin by creating just such a compiler. Let us do the same. We will learn more instructions, as we need them.
 
 ## Reflection Emit
@@ -63,43 +62,45 @@ We need not delve into the details of Reflection Emit just yet. All we need to k
 
 Here is some code that demonstrates how ILGenerator is used, and also sets up a framework for the code generation part of our compiler.
 
-```vb
+```vbnet
 Imports System
 Imports System.Reflection
 Imports System.Reflection.Emit
- 
+
 Public Class CodeGen
       Private m_ILGen As ILGenerator
- 
+
       Public Sub EmitNumber(num As Integer)
            m_ILGen.Emit(Opcodes.Ldc_i4, num)
       End Sub
 End Class
 ```
+
 We create a class called CodeGen, which has a private variable called m\_ILGen, which is of type ILGenerator. In the subroutine EmitNumber, we use the Emit method of m\_ILGen, passing it the Opcode **Ldc\_i4**, which we discussed earlier, and the number to be loaded. We can write all our emitting code like this. So, let us add the code for emitting the four mathematical operations to the CodeGen class.
 
-```vb
+```vbnet
 Public Sub EmitAdd()
      m_ILGen.Emit(Opcodes.Add)
 End Sub
- 
+
 Public Sub EmitSubtract()
      m_ILGen.Emit(Opcodes.Sub)
 End Sub
- 
+
 Public Sub EmitMultiply()
      m_ILGen.Emit(Opcodes.Mul)
 End Sub
- 
+
 Public Sub EmitDivide()
      m_ILGen.Emit(Opcodes.Div)
 End Sub
 ```
-##Code(Gen) Complete
+
+## Code(Gen) Complete
 
 By now, you would have noticed that we have not initialized the variable m_ILGen. Also, the question arises, where do opcodes and the data emitted by the ILGenerator go? The full explanation for these will be handled in a later chapter, but for now, here is the complete listing for the CodeGen class. Bear with me, and save this as **CodeGen.vb**. We will keep coming back to this class, both for a complete explanation of what is going on, as well as for adding new features to it.
 
-```vb
+```vbnet
 Option Strict On
 Option Explicit On
 
@@ -110,112 +111,113 @@ Imports System.Reflection.Emit
 
 
 Public Class CodeGen
-	Private m_ILGen As ILGenerator
-	Private m_producedAssembly As AssemblyBuilder
-	Private m_producedmodule As ModuleBuilder
-	Private m_producedtype As TypeBuilder
-	Private m_producedmethod As MethodBuilder
-	Private m_SaveToFile As String
+    Private m_ILGen As ILGenerator
+    Private m_producedAssembly As AssemblyBuilder
+    Private m_producedmodule As ModuleBuilder
+    Private m_producedtype As TypeBuilder
+    Private m_producedmethod As MethodBuilder
+    Private m_SaveToFile As String
 
-	Public Sub EmitNumber(ByVal num As Integer)
-		m_ILGen.Emit(OpCodes.Ldc_I4, num)
-	End Sub
+    Public Sub EmitNumber(ByVal num As Integer)
+    m_ILGen.Emit(OpCodes.Ldc_I4, num)
+    End Sub
 
-	Public Sub EmitAdd()
-		m_ILGen.Emit(OpCodes.Add)
-	End Sub
+    Public Sub EmitAdd()
+    m_ILGen.Emit(OpCodes.Add)
+    End Sub
 
-	Public Sub EmitSubtract()
-		m_ILGen.Emit(OpCodes.Sub)
-	End Sub
+    Public Sub EmitSubtract()
+    m_ILGen.Emit(OpCodes.Sub)
+    End Sub
 
-	Public Sub EmitMultiply()
-		m_ILGen.Emit(OpCodes.Mul)
-	End Sub
+    Public Sub EmitMultiply()
+    m_ILGen.Emit(OpCodes.Mul)
+    End Sub
 
-	Public Sub EmitDivide()
-		m_ILGen.Emit(OpCodes.Div)
-	End Sub
+    Public Sub EmitDivide()
+    m_ILGen.Emit(OpCodes.Div)
+    End Sub
 
-	Public Sub EmitWriteLine()
-		Dim inttype As Type = Type.GetType("System.Int32")
-		Dim consoletype As Type = Type.GetType("System.Console")
-		Dim paramtypes() As Type = {inttype}
+    Public Sub EmitWriteLine()
+    Dim inttype As Type = Type.GetType("System.Int32")
+    Dim consoletype As Type = Type.GetType("System.Console")
+    Dim paramtypes() As Type = {inttype}
 
-		m_ILGen.Emit( _
-			OpCodes.Call, _
-			consoletype.GetMethod( _
-				"WriteLine", paramtypes _
-			) _
-		)
-	End Sub
+    m_ILGen.Emit( _
+        OpCodes.Call, _
+        consoletype.GetMethod( _
+            "WriteLine", paramtypes _
+        ) _
+    )
+    End Sub
 
-	Public Sub New(ByVal FileName As String)
-		m_SaveToFile = FileName
+    Public Sub New(ByVal FileName As String)
+    m_SaveToFile = FileName
 
-		' Compiling a CLR language produces an assembly.
-		' An assembly has one or more modules.
-		' Each module has one or more types:
-		' (structures or classes)
-		' Each type has one or more methods.
-		' Methods are where actual code resides.
-		' Create an assembly called "MainAssembly".
+    ' Compiling a CLR language produces an assembly.
+    ' An assembly has one or more modules.
+    ' Each module has one or more types:
+    ' (structures or classes)
+    ' Each type has one or more methods.
+    ' Methods are where actual code resides.
+    ' Create an assembly called "MainAssembly".
 
-		Dim an As New AssemblyName
-		an.Name = "MainAssembly"
+    Dim an As New AssemblyName
+    an.Name = "MainAssembly"
 
-		m_producedAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly( _
-							an, AssemblyBuilderAccess.Save _
-		)
+    m_producedAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly( _
+                        an, AssemblyBuilderAccess.Save _
+    )
 
-		' In MainAssembly, create a module called
-		' "MainModule".
-		m_producedmodule = m_producedAssembly.DefineDynamicModule( _
-							"MainModule", FileName, False
-		)
+    ' In MainAssembly, create a module called
+    ' "MainModule".
+    m_producedmodule = m_producedAssembly.DefineDynamicModule( _
+                        "MainModule", FileName, False
+    )
 
-		' In MainModule, create a class called
-		' "MainClass".
-		m_producedtype = m_producedmodule.DefineType("MainClass")
+    ' In MainModule, create a class called
+    ' "MainClass".
+    m_producedtype = m_producedmodule.DefineType("MainClass")
 
-		' In MainClass, create a Shared (static) method
-		' with Public scope, called "MainMethod".
-		m_producedmethod = m_producedtype.DefineMethod( _
-						"MainMethod", _
-						MethodAttributes.Public Or MethodAttributes.Static, _
-						Nothing, _
-						Nothing _
-		)
+    ' In MainClass, create a Shared (static) method
+    ' with Public scope, called "MainMethod".
+    m_producedmethod = m_producedtype.DefineMethod( _
+                    "MainMethod", _
+                    MethodAttributes.Public Or MethodAttributes.Static, _
+                    Nothing, _
+                    Nothing _
+    )
 
-		' All IL code that we produce will be contained
-		' in MainMethod.
-		m_ILGen = m_producedmethod.GetILGenerator
+    ' All IL code that we produce will be contained
+    ' in MainMethod.
+    m_ILGen = m_producedmethod.GetILGenerator
 
-	End Sub
+    End Sub
 
-	Public Sub Save()
-		' Emit a RETurn opcode, which is the last
-		' opcode for any method
-		m_ILGen.Emit(OpCodes.Ret)
+    Public Sub Save()
+    ' Emit a RETurn opcode, which is the last
+    ' opcode for any method
+    m_ILGen.Emit(OpCodes.Ret)
 
-		' Actually create the type in the module
-		m_producedtype.CreateType()
+    ' Actually create the type in the module
+    m_producedtype.CreateType()
 
-		' Specify that when the produced assembly
-		' is run, execution will start from
-		' the produced method (MainMethod). Also, the
-		' produced assembly will be a console
-		' application.
-		m_producedAssembly.SetEntryPoint( _
-			m_producedmethod, _
-			PEFileKinds.ConsoleApplication
-		)
+    ' Specify that when the produced assembly
+    ' is run, execution will start from
+    ' the produced method (MainMethod). Also, the
+    ' produced assembly will be a console
+    ' application.
+    m_producedAssembly.SetEntryPoint( _
+        m_producedmethod, _
+        PEFileKinds.ConsoleApplication
+    )
 
-		m_producedAssembly.Save(m_SaveToFile)
-	End Sub
+    m_producedAssembly.Save(m_SaveToFile)
+    End Sub
 End Class
 
 ```
+
 Here is a quick and dirty explanation of what is going on. Detailed explanations will be given in later chapters.
 
 1. Each CLR application is contained in a package called an _assembly_. An assembly usually corresponds to an EXE (or a DLL) file.
@@ -233,37 +235,43 @@ Here is a quick and dirty explanation of what is going on. Detailed explanations
 The method EmitWriteLine emits IL instructions to cause the generated EXE to print the last number on the stack to the screen. The technique used in this method, as well as the actual Opcode emitted, **Call**, will be discussed in detail in a future chapter. As of now, we need to remember only this: just like EmitAdd expects two numbers on the stack, and pops them, EmitWriteline expects a single number on top of the stack, and pops it. The number is displayed on the screen.
 
 ## Testing CodeGen
+
 Let's test this. Save the following code as **Tester1.vb**.
 
-```vb
+```vbnet
 Option Strict On
 Option Explicit On
 
 Module Tester1
-	Sub Main()
-		Dim cg As New CodeGen("hello.exe")
+    Sub Main()
+        Dim cg As New CodeGen("hello.exe")
 
-		cg.EmitNumber(2)
-		cg.EmitNumber(2)
-		cg.EmitAdd()
-		cg.EmitWriteLine()
+        cg.EmitNumber(2)
+        cg.EmitNumber(2)
+        cg.EmitAdd()
+        cg.EmitWriteLine()
 
-		cg.Save()
-	End Sub
+        cg.Save()
+    End Sub
 End Module
 ```
 
 It is now time to compile and run. You may want to review the instructions to do so, especially if you are running Mono on Linux. Take a look at the chapter called [The Development Environment](/the-development-environment.md).
 
 Compile with the following command:
+
 ```bash
 vbc /out:Tester1.exe Tester1.vb CodeGen.vb
 ```
+
 Then, run it with:
-```
+
+```bash
 Tester1.exe
 ```
+
 which should produce the file hello.exe. Now, run:
+
 ```bash
 Hello
 ```
@@ -280,35 +288,42 @@ I like to keep my examples as real-life as possible, and this last one was not r
 
 So, let us introduce some errors. Modify the code in **Tester1.vb** to look like this, and save as **Tester2.vb**.
 
-```vb
+```vbnet
 Option Strict On
 Option Explicit On
 
 Module Tester2
-	Sub Main()
-		Dim cg As New CodeGen("hello.exe")
+    Sub Main()
+        Dim cg As New CodeGen("hello.exe")
 
-		cg.EmitNumber(2)
-		cg.EmitWriteLine()
-		cg.EmitNumber(2)
-		cg.EmitAdd()
+        cg.EmitNumber(2)
+        cg.EmitWriteLine()
+        cg.EmitNumber(2)
+        cg.EmitAdd()
 
-		cg.Save()
-	End Sub
+        cg.Save()
+    End Sub
 End Module
 ```
+
 Again, compile:
+
 ```bash
 vbc /out:Tester2.exe Tester2.vb CodeGen.vb
 ```
+
 Run:
-```bash 
+
+```bash
 Tester2.exe
 ```
+
 which should produce the file hello.exe. Now run:
+
 ```bash
 Hello.exe
 ```
+
 Ouch!!! What happened?
 
 ## What's going on?
@@ -324,6 +339,7 @@ Nope. That is because, as things are, the EXE is invalid. It is impossible to ru
 ## It’s trickier than apparent (or, for each bug you see, there's one you don't)
 
 You can trigger verification without running the EXE, using a tool called `peverify`. We can test this now by executing the command:
+
 ```bash
 peverify hello.exe
 ```
@@ -340,45 +356,53 @@ The complete rule is "The stack must be empty at the end of a VOID method", whic
 
 Can't get enough of them errors. Here's another kind. Modify **Tester2.vb** to look like this, and save as **Tester3.vb**.
 
-```vb
+```vbnet
 Option Strict On
 Option Explicit On
 
 Module Tester3
-	Sub Main()
-		Dim cg As New CodeGen("hello.exe")
+    Sub Main()
+        Dim cg As New CodeGen("hello.exe")
 
-		cg.EmitNumber(2)
-		cg.EmitWriteLine()
+        cg.EmitNumber(2)
+        cg.EmitWriteLine()
 
-		cg.EmitNumber(2)
-		cg.EmitNumber(0)
-		cg.EmitDivide()
-		cg.EmitWriteLine()
+        cg.EmitNumber(2)
+        cg.EmitNumber(0)
+        cg.EmitDivide()
+        cg.EmitWriteLine()
 
-		cg.Save()
-	End Sub
+        cg.Save()
+    End Sub
 End Module
 ```
 
 Again, compile:
+
 ```bash
 vbc /out:Tester3.exe Tester3.vb CodeGen.vb
 ```
+
 Run:
-```vb 
+
+```bash
 Tester3.exe
 ```
+
 which should produce the file hello.exe. Now run
+
 ```bash
 Hello
 ```
+
 Ouch again!!! It should be obvious what the problem is: we are trying to divide 2 by 0, and division by zero is an error.
 
 Now, look carefully at the output. Can you see the 2 before the error message? The EXE actually ran till the point where we tried to divide by zero. It passed the verification process. We can check this ourselves by running
+
 ```bash
 peverify hello.exe
 ```
+
 which reports that the executable is valid.
 
 ## Compile-time vs. Run-time errors
@@ -395,7 +419,7 @@ If we were generating machine language, an invalid executable could well have ca
 
 Believe it or not, most errors are taken care of by approach 1, not producing errors. Compile time errors should be caught well before you come to the code generation stage. If the language that you are compiling is well defined (I will hold off comments about existing languages here), many compile-time errors, like the one shown, are not produced at all. Approach 2 is the fallback option. We will see this practically in subsequent chapters.
 
-What about run-time errors? When they occur, the least the user can expect is an error message. Any one of several components can provide that message. In the best case, the language being compiled would provide error-checking facilities, and the writer of the program would perform error checking herself. In the worst case, the machine will crash, although this mostly does not happen nowadays. The new worst case is that the operating system takes over, and displays an ugly, very general error message, such as General Protection Fault or segmentation fault. Either way, there is not much that a compiler can do to prevent run-time errors. 
+What about run-time errors? When they occur, the least the user can expect is an error message. Any one of several components can provide that message. In the best case, the language being compiled would provide error-checking facilities, and the writer of the program would perform error checking herself. In the worst case, the machine will crash, although this mostly does not happen nowadays. The new worst case is that the operating system takes over, and displays an ugly, very general error message, such as General Protection Fault or segmentation fault. Either way, there is not much that a compiler can do to prevent run-time errors.
 
 In between these two extremes, there is another possibility: the language being compiled provides a run-time environment. This is some pre-written code, which is linked with code written by the developer when the application is running. The runtime environment is responsible for providing a lot of the functionality of a particular language. Among other things, a run-time environment is capable of detecting run-time errors, and showing a specific error message.
 
@@ -405,7 +429,7 @@ Ultimately, the aim of a compiler for the CLR is to produce IL that is free of c
 
 ## The unavoidable "Hello, world"
 
-I had started this chapter intending to create a code generator that generates just enough code to deal with integer numbers. But then I remembered a tradition started by the legendary Brian Kernighan: the first program that you write in any language should output the words "Hello, world."[^4] While we don't have a "language" yet, we do have a "compiler" which produces executable code. Our working "compiler", Tester1.exe, produces an executable that adds 2 and 2, and thus breaks tradition. 
+I had started this chapter intending to create a code generator that generates just enough code to deal with integer numbers. But then I remembered a tradition started by the legendary Brian Kernighan: the first program that you write in any language should output the words "Hello, world."[^4] While we don't have a "language" yet, we do have a "compiler" which produces executable code. Our working "compiler", Tester1.exe, produces an executable that adds 2 and 2, and thus breaks tradition.
 
 So, let us add just enough features to our code generator to enable us to create an executable which says "Hello, world".
 
@@ -415,30 +439,30 @@ So, let us add just enough features to our code generator to enable us to create
 
 Strings are manipulated in exactly the same way as anything else; they are loaded on to the stack, and popped when needed. The opcode to load a string is called **LdStr**. Let us add that capability to our CodeGen class. Add the following code to **CodeGen.vb**, inside the CodeGen class definition:
 
-```vb
-	Public Sub EmitString(ByVal str As String)
-		m_ILGen.Emit(OpCodes.Ldstr, str)
-	End Sub
-	
-	Public Sub EmitWriteLineString()
-		Dim strtype As Type = Type.GetType("System.String")
-		Dim consoletype As Type = Type.GetType("System.Console")
-		Dim paramtypes() As Type = {strtype}
+```vbnet
+    Public Sub EmitString(ByVal str As String)
+        m_ILGen.Emit(OpCodes.Ldstr, str)
+    End Sub
 
-		m_ILGen.Emit( _
-			OpCodes.Call, _
-			consoletype.GetMethod( _
-				"WriteLine", paramtypes _
-			) _
-		)
-	End Sub
+    Public Sub EmitWriteLineString()
+        Dim strtype As Type = Type.GetType("System.String")
+        Dim consoletype As Type = Type.GetType("System.Console")
+        Dim paramtypes() As Type = {strtype}
+
+        m_ILGen.Emit( _
+            OpCodes.Call, _
+            consoletype.GetMethod( _
+                "WriteLine", paramtypes _
+            ) _
+        )
+    End Sub
 ```
 
 EmitString loads a string onto the stack. EmitWriteLineString works the same as EmitWriteLine, except that the code it emits expects a string on top of the stack.
 
 Armed with this enhanced CodeGen, we can now create a "compiler", which will create our "Hello, world" executable. Save the following as **Tester4.vb**.
 
-```vb
+```vbnet
 Option Strict On
 Option Explicit On
 
@@ -454,18 +478,25 @@ Module Tester4
     End Sub
 End Module
 ```
+
 Compile with:
+
 ```bash
 vbc /out:Tester4.exe Tester4.vb CodeGen.vb
 ```
+
 Run with:
+
 ```bash
 Tester4.exe
 ```
+
 which should produce the file hello.exe. Now run:
+
 ```bash
 hello.exe
 ```
+
 And so the legacy of "Hello, world" lives on.
 
 ## Conclusion
@@ -479,6 +510,6 @@ A compiler translates some source code into object code. In this chapter, we dem
 
 [^2]: Wikipedia article about stack machines \([https://en.wikipedia.org/wiki/Stack\_machine](https://en.wikipedia.org/wiki/Stack_machine)\)
 
-[^3]: An interesting note here. As the name suggests, the CLR is: a run-time environment common to many languages, including C#, Visual Basic.NET, F#, Boo, IronPython and so on. When the CLR was first released in the early 2000s, there was this in-joke among Visual Basic enthusiasts: the new Visual Basic runtime was so good, they decided to share it with other languages, and so the CLR was born. 
+[^3]: An interesting note here. As the name suggests, the CLR is: a run-time environment common to many languages, including C#, Visual Basic.NET, F#, Boo, IronPython and so on. When the CLR was first released in the early 2000s, there was this in-joke among Visual Basic enthusiasts: the new Visual Basic runtime was so good, they decided to share it with other languages, and so the CLR was born.
 
 [^4]: Wikipedia article about Hello World \([https://en.wikipedia.org/wiki/%22Hello,_World!%22_program](https://en.wikipedia.org/wiki/%22Hello,_World!%22_program)\)

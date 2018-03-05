@@ -10,7 +10,7 @@ The goal for this chapter is to write a program that understands simple arithmet
 
 A typical arithmetic expression looks something like this:
 
-```
+```pseudocode
 2+3*(4+2)
 ```
 
@@ -306,6 +306,7 @@ Private Function ParseNumber() As ParseStatus
     Return result
 End Function
 ```
+
 Now, these methods are typical of everything we are going to do going forward, so an explanation is in order here. The parsing method, ParseNumber, calls the scanning method ScanNumber. ScanNumber checks if the current character from input is valid for a number or not, and adds it the current token if it is. If not, ScanNumber just exits.
 
 When ScanNumber returns, ParseNumber simply checks to see if there is anything in the current token. If not, this is an error, and ParseNumber returns a ParseStatus with the code 1. Otherwise, things are fine, and ParseNumber calls CodeGen to emit the number that is stored as the current token.
@@ -333,6 +334,7 @@ Private Function ParseLine() As ParseStatus
     Return result
 End Function
 ```
+
 Right now, understanding a line means understanding a number. If ParseNumber succeeds, we call EmitWriteLine on the CodeGen instance, such that the number we so painstakingly parsed (and generated IL for) can be seen on screen when the resulting executable is run. Bonus points to anyone who remembers why we must call that EmitWriteLine.
 
 ## Does it work?
@@ -341,7 +343,7 @@ To find out, we will have to create a calling class that uses the parser class. 
 
 ```vbnet
 Option Strict On
-Option Explicit On 
+Option Explicit On
 
 Imports System
 Imports System.IO
@@ -377,6 +379,7 @@ Module Compiler
     End Sub
 End Module
 ```
+
 Nothing fancy here. Just creating an instance of CodeGen and an instance of Parser, calling Parser.Parse, and if it succeeds, asking the CodeGen instance to save the results in a file called Test.exe.
 
 Actually, there is something just a little fancy here. We are passing Console.In to the Parser instance. Console.In is a TextReader. When this compiler runs, we will be able to type in our "source code" right in the console, and get immediate results.
@@ -385,19 +388,19 @@ Okay, let us compile the lot. You may want to review the instructions in the [De
 
 Compile with:
 
-```
+```bash
 vbc /out:Compiler.exe Compiler.vb Parser.vb CodeGen.vb ParseStatus.vb
 ```
 
 Run using:
 
-```
+```bash
 Compiler.exe
 ```
 
 The "compiler" will wait for input. If we type in any integer number, followed by Enter, our compiler will write an executable file called **Test.exe**, and terminate saying "Done." At that point, we can run
 
-```
+```bash
 Test.exe
 ```
 
@@ -406,9 +409,10 @@ to run the generated executable, which will faithfully echo the number we just t
 If we type anything other than a number, our "compiler" will terminate, with an accurate error message.
 
 ## Error: Missing error
+
 Try this: run our "compiler", and type
 
-```
+```bash
 12c
 ```
 
@@ -419,6 +423,7 @@ Our "compiler" cheerfully accepts the digit part, and seems to just ignore anyth
 For now, we will ignore this problem; as we enhance the parser to understand more about mathematical expressions, this will be taken care of.
 
 ## White (?) Space
+
 Try this: run our "compiler", and type a single space (or multiple spaces) followed by a valid number. What happens?
 
 Our parser knows only about numbers. Our scanner stops as soon as it hits a non-digit-character. Therefore, we get an error.
@@ -444,6 +449,7 @@ Private Sub SkipWhiteSpace()
     Loop
 End Sub
 ```
+
 Finally, in the method ParseLine, just before the call to ParseNumber(), put in a call to SkipWhiteSpace. Here is the rewritten ParseLine method for your convenience.
 
 ```vbnet
@@ -461,6 +467,7 @@ Private Function ParseLine() As ParseStatus
     Return result
 End Function
 ```
+
 Compile and run. This time, we can put as many spaces before or after a number, it will still successfully compile.
 
 ## Don't be negative
@@ -493,6 +500,7 @@ Private Function IsNumeric(ByVal c As Char) As Boolean
     Return result
 End Function
 ```
+
 Also, we need to add an additional check in ParseNumber. After our modification of IsNumber, a single – or a +, by itself, would appear to be a correct number, and we would have trouble at the time of code generation. We need to check for this special case in ParseNumber, because as we discussed, ensuring correctness is the parser's job. Here is the rewritten ParseNumber.
 
 ```vbnet
@@ -518,6 +526,7 @@ Private Function ParseNumber() As ParseStatus
     Return result
 End Function
 ```
+
 And that's that. When you compile and run again, negative numbers and numbers with + signs before them will now be correctly recognized and translated.
 
 ## Factoring in some operators
@@ -529,6 +538,7 @@ What is a factor? As of right now, a factor is what we already know how to parse
 What is a mulordivoperator? It is either a * or a / symbol, followed compulsorily by a factor.
 
 A term is much more interesting. It represents either a number, or one or more multiplication or division operations. In other words, a term can be either one of the following:
+
 * a factor
 * a factor, followed by one or more mulordivoperators
 
@@ -625,6 +635,7 @@ Private Function ParseTerm() As ParseStatus
     Return result
 End Function
 ```
+
 Finally, we need to tell ParseLine, the root of our parser, to process Terms instead of Numbers. Here is the rewritten ParseLine.
 
 ```vbnet
@@ -648,6 +659,7 @@ Compile and run. Now, you can type a single number, or two numbers separated by 
 Why did we do multiplication and division first, instead of addition and subtraction?
 
 ## Express Yourself
+
 We are almost at the point where we can parse complete arithmetic expressions. Addition and subtraction are left. Let's put them in.
 
 So far, our compiler parses terms, mulordivoperators, factors and numbers. Let's finish off by adding two more things that it can parse; _addorsuboperators_ and _numericexpressions_.
@@ -655,6 +667,7 @@ So far, our compiler parses terms, mulordivoperators, factors and numbers. Let's
 What is a addorsuboperator? It is either a + or a - symbol, followed compulsorily by a term.
 
 What is a numericexpression? It can be either one of the following:
+
 * a term
 * a term, followed by one or more addorsuboperators
 
@@ -738,7 +751,7 @@ End Function
 
 Compile and run. Test it with the following input:
 
-```
+```bash
 2+3+4*5
 ```
 
@@ -747,6 +760,7 @@ The answer, of course, should be 25. And it is.
 Try it with any numeric expression. Our compiler will correctly do all multiplications and divisions before additions and subtractions. How? Well, ParseNumericExpression calls ParseTerm (which takes care of multiplications and divisions) before it deals with additions and subtractions. As simple as that.
 
 ## Brace Yourself
+
 One more thing, and we can just about close the chapter on arithmetic expressions. To complete our parser, we need the ability to make parts of the expression be calculated before others, through the use of brackets.
 
 The priority part is simple: we gave multiplication and division priority by handling them inside ParseTerm, which gets called from ParseNumericExpression before ParseNumericExpression handles addition and subtraction. All we have to do is handle brackets in a method that gets called from ParseTerm before ParseTerm handles multiplication and division. Yes; we will handle brackets in ParseFactor, which so far was just a call to ParseNumber.
@@ -782,6 +796,7 @@ Private Function ParseFactor() As ParseStatus
     Return result
 End Function
 ```
+
 Notice that ParseFactor is calling a new method, SkipCharacter. Whereas brackets are significant to the syntax, they do not need any special code generated (like white space). Therefore, we just advance the look-ahead character. Add the code for SkipCharacter to **Parser.vb**, in the Scanner section.
 
 ```vbnet
@@ -796,7 +811,7 @@ There is always one error that is overlooked. In this case, we have met it befor
 
 Test our compiler with the following:
 
-```
+```bash
 12+12 23+23
 13+42csuaydf632
 4*2(3+2)
@@ -850,13 +865,14 @@ Compile and run. This time when we run our compiler, we will be able to enter an
 Of course, if there is a compilation error, the compiler will stop immediately, not process any further lines, and not generate any code. This is not how professional compilers work, but it's good enough for us for now. We will re-visit this topic later.
 
 ## Finally
+
 Believe it or not, we have a complete compiler of sorts now. Like any major language compiler, it processes source code line by line, and generates an executable. There remains only one problem; "real" compilers read source code from files, rather than get the user to type it in on invocation. Let's take care of that detail.
 
 Change **Compiler.vb** as shown below:
 
 ```vbnet
 Option Strict On
-Option Explicit On 
+Option Explicit On
 
 Imports System
 Imports System.IO
@@ -870,30 +886,30 @@ Module Compiler
         Dim parser As Parser
 
         Console.WriteLine("Compiler for CLR")
-		
-		If CmdArgs.Length=0 Then
+
+        If CmdArgs.Length=0 Then
             reader = Console.In
             gen = New CodeGen("Test.exe")
         Else
-			If File.Exists(CmdArgs(0)) Then
-				Dim finfo As New FileInfo(CmdArgs(0))
-				
-				reader = New StreamReader( _
-							finfo.FullName)
-				
-				gen = new CodeGen( _
-				        finfo.Name.Replace( _
-						    finfo.extension, _
-						    ".exe" _
-						) _
+            If File.Exists(CmdArgs(0)) Then
+                Dim finfo As New FileInfo(CmdArgs(0))
+
+                reader = New StreamReader( _
+                            finfo.FullName)
+
+                gen = new CodeGen( _
+                        finfo.Name.Replace( _
+                            finfo.extension, _
+                            ".exe" _
+                        ) _
                     )
-			Else
-				Console.Write( _
-					"Error: Could not find the file {0}.", _
-					CmdArgs(0))
-				Return 1
-			End If
-		End If
+            Else
+                Console.Write( _
+                    "Error: Could not find the file {0}.", _
+                    CmdArgs(0))
+                Return 1
+            End If
+        End If
 
         parser = New Parser(reader, gen)
         status = parser.Parse()
@@ -920,7 +936,7 @@ Compile as usual. When the resulting Compiler.exe is run, it will check to see i
 
 Test this by creating a file called **calc.sic**, which should contain the following:
 
-```
+```bash
 1
 2*(2+1)+4
 10/5
@@ -929,13 +945,13 @@ Test this by creating a file called **calc.sic**, which should contain the follo
 
 Run our compiler with:
 
-```
+```bash
 Compiler.exe calc.sic
 ```
 
 This should create a **calc.exe** file, which when run should produce the following output.
 
-```
+```bash
 1
 10
 2
