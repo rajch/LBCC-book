@@ -136,4 +136,4 @@ A "**program**", as understood by our compiler, is zero or more **line**s. Each 
 
 ## Conclusion
 
-As our compiler gets bigger, keeping track of exactly what it has to parse, and the rules thereof, becomes harder. BNF will help us to define the whole grammar in a more compact manner, and will give us a great starting point for structuring our code. From here on out, every chapter will end with the grammar as understood by the compiler delivered in that chapter.
+As our compiler gets bigger, keeping track of exactly what it has to parse, and the rules thereof, becomes harder. BNF will help us to define the whole grammar in a more compact manner, and will give us a great starting point for structuring our code.
