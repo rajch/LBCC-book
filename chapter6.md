@@ -85,10 +85,11 @@ What does a statement look like? Usually it is a word, in English or an approxim
 Here's the BNF:
 
 ```bnf
-<name>           ::= <letter><namecharacter>+
-<namecharacter>  ::= <letter>|<digit>|"_"
-<letter>         ::= ? a letter in any language ?
-<digit>          ::= "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+<name>               ::= <namestartcharacter><namecharacter>+
+<namestartcharacter> ::= <letter>|"_"
+<namecharacter>      ::= <letter>|<digit>|"_"
+<letter>             ::= ? a letter in any language ?
+<digit>              ::= "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
 ```
 
 Given these rules, we can create a scanner method for names pretty easily. Add the
@@ -200,7 +201,7 @@ Here's the BNF:
 
 ```bnf
 <line>          ::= <command>
-<command>  ::= <remcommand>|<printcommand>
+<command>       ::= <remcommand>|<printcommand>
 <remcommand>    ::= "rem" <restofline>
 <restofline>    ::= ? Anything. ?
 <printcommand>  ::= "print" <exression>
@@ -637,7 +638,7 @@ AddCommand("end", AddressOf ParseEndCommand)
 
 For any commands other than these two, this would have been enough. However, these two deserve special treatment, as they start and end a comment block. Since every line is supposed to start with a command, ParseCommand will get called for every line, and check if a command is valid. If we are inside a comment block, then the only command that ParseCommand should be looking for is the "End" command. Everything else should just be parsed as valid. This will save us the trouble of checking if we are inside a comment block in every command separately.
 
-So, let's re-write ParseCommand to take care of this. Make the change in **Parser.vb**.
+So, let's re-write `ParseCommand` to take care of this. Make the change in **Parser.vb**.
 
 ```vbnet
 Private Function ParseCommand() As ParseStatus
