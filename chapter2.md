@@ -313,7 +313,7 @@ When ScanNumber returns, ParseNumber simply checks to see if there is anything i
 
 Note the lack of error checking, exception handling etc. Especially note that the ScanNumber method does not return any kind of status information. Not needed, as we shall see shortly.
 
-This is the way it is going to be. We will create a Parse method for anything we want to understand, which will call a corresponding Scan method, which may use one or more Is methods to decide whether to proceed or to return. 
+This is the way it is going to be. We will create a Parse method for anything we want to understand, which will call a corresponding Scan method, which may use one or more Is methods to decide whether to proceed or to return.
 
 The Scan methods will ensure that the property CurrentToken contains a valid token, or is empty if the input is unexpected or invalid.
 
@@ -547,10 +547,10 @@ Let’s understand this with some examples:
 |Input|Scanned as|
 |-----|----------|
 |1|This is a valid term, because it is a single number, or factor.|
-|1*2|The "\* 2" part is a valid mulordiv operator, as it is a * sign followed by a factor. The "1" part is a valid factor. Hence, the whole input is a valid term.|
-|1*6/3|This is also a valid term, because it is one factor ("1") followed by two mulordivoperators (“* 6” and “/ 3”)|
+|1\*2|The "\* 2" part is a valid mulordiv operator, as it is a \* sign followed by a factor. The "1" part is a valid factor. Hence, the whole input is a valid term.|
+|1\*6/3|This is also a valid term, because it is one factor ("1") followed by two mulordivoperators (“\* 6” and “/ 3”)|
 
-What should happen when each of these get parsed? 
+What should happen when each of these get parsed?
 
 1. A factor, being a number, should cause the number to be emitted on to the stack.
 2. A mulordivoperator is a symbol, followed compulsorily by a factor. It is not valid until the factor after the symbol has been parsed. If the factor got parsed successfully, then the number would already be emitted to the stack, as per the rule above. So, a successful parse for a mulordivoperator simply has to emit the **Mul** or **Div** instruction to the stack.
@@ -654,7 +654,7 @@ Private Function ParseLine() As ParseStatus
 End Function
 ```
 
-Compile and run. Now, you can type a single number, or two numbers separated by a * or a /, or any number of numbers separated by * or /. The resulting executable will calculate the whole term from left to right, and show the result.
+Compile and run. Now, you can type a single number, or two numbers separated by a \* or a /, or any number of numbers separated by \* or /. The resulting executable will calculate the whole term from left to right, and show the result.
 
 Why did we do multiplication and division first, instead of addition and subtraction?
 
@@ -860,7 +860,7 @@ Public Function Parse() As ParseStatus
 End Function
 ```
 
-Compile and run. This time when we run our compiler, we will be able to enter any number of expressions, ending each one with an Enter. To complete our input, press Ctrl and Z together if you are on Windows, or Ctrl and D together if you are on Linux (or OS X) followed by Enter. Test.exe will be generated, and when we run this, the results of our calculations will be displayed in the correct order.
+Compile and run. This time when we run our compiler, we will be able to enter any number of expressions, ending each one with an Enter. To complete our input, press Ctrl and Z together  followed by Enter if you are on Windows, or Ctrl and D together if you are on Linux (or OS X). Test.exe will be generated, and when we run this, the results of our calculations will be displayed in the correct order.
 
 Of course, if there is a compilation error, the compiler will stop immediately, not process any further lines, and not generate any code. This is not how professional compilers work, but it's good enough for us for now. We will re-visit this topic later.
 
@@ -962,7 +962,7 @@ This should create a **calc.exe** file, which when run should produce the follow
 
 Before we conclude the chapter, I had promised a slightly more detailed discussion of what we are doing here. Here it is.
 
-Although this section is slightly more detailed in describing compiler theory than the rest of the chapter, do not expect very in-depth coverage. Consider this a layman-termed introduction, by a layman for laymen.
+Although this section is "slightly more detailed" in describing compiler theory than the rest of the chapter, do not expect very in-depth coverage. Consider this a layman-termed introduction, by a layman for laymen.
 
 That said, let us proceed.
 
@@ -987,9 +987,9 @@ The part of the compiler that reads the source, and decides what kind of token t
 
 A parser decides whether the order in which the tokens appear makes sense, or not. The rules that are checked and enforced by the parser are called the _grammar_ or the _syntax_ of the language being parsed. It is here, for example, that we can specify that in a given line of Basic source code, a Variable token appearing at the start of a line can only be followed by an Assignment Operator token, and anything else is an error.
 
-The Lexer passes at least two things to the Parser: a token and a _lexeme_. A token is a general type, such as 'Variable' or 'Assignment Operator', and is usually represented as an enumerated value such as 1 for variable, 2 for assignment operator and so on. A lexeme is the actual value read from source, like 'somevar' or '='. Sometimes the Parser needs the lexeme; sometimes it just needs the token. In the scanner part of our Parser class, the property CurrentToken actually returns the lexeme. In a small compiler like ours, we don't really need to differentiate.
+The lexer passes at least two things to the parser: a token and a _lexeme_. A token is a general type, such as 'Variable' or 'Assignment Operator', and is usually represented as an enumerated value such as 1 for variable, 2 for assignment operator and so on. A lexeme is the actual value read from source, like 'somevar' or '='. Sometimes the Parser needs the lexeme; sometimes it just needs the token. In the scanner part of our Parser class, the property CurrentToken actually returns the lexeme. In a small compiler like ours, we don't really need to differentiate.
 
-What the Parser does, after checking for syntactic correctness, differs from implementation to implementation. Usually, it produces a representation of the code in a form called _abstract syntax tree_ or AST. The tree is then given to the code generator to generate code. In our case, the parser directly calls the code generator to generate code.
+What the parser does, after checking for syntactic correctness, differs from implementation to implementation. Usually, it produces a representation of the code in a form called _abstract syntax tree_ or AST. The tree is then given to the code generator to generate code. In our case, the parser directly calls the code generator to generate code.
 
 Both lexical scanning and parsing are subjects of intense study, and several texts and tools are devoted to each purpose. In fact, parsing has been studied to the point where there are some well-known methods of doing it efficiently. The terms LL(1), LL(k), LR and LALR are associated with these well-known methods.
 

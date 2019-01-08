@@ -9,3 +9,4 @@
 * [Chapter 4 - Booleans Part I](chapter4.md)
 * [Interlude - Grammars and BNF](interlude-bnf.md)
 * [Chapter 5 - Booleans Part II](chapter5.md)
+* [Chapter 6 - Statements](chapter6.md)

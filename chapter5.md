@@ -46,7 +46,7 @@ The approach is similar to the one we took for mathematical expressions; we will
 * _OrOperation_: this is an _AndOperation_, followed by zero or more _OROperator_s.
 * _OrOperator_: this is either the word `OR` (uppercase or lowercase), or the symbol `|`, followed by an _AndOperation_.
 
-As you can see, this is exactly the same as the way we process mathematical expressions. The only thing missing in the definition so far are the brackets, for precedence. We will handle these in the definition of _BooleanFactor_, by recursively calling the topmost level, _BooleanExpression_, just like we did in the case of factors in mathematical expressions. _BooleanExpression_ itself, currently equivalent to _Codndition_, needs to be modified to call the top of the complex condition recursive-descent hierarchy: _OrOperation_.
+As you can see, this is exactly the same as the way we process mathematical expressions. The only thing missing in the definition so far are the brackets, for precedence. We will handle these in the definition of _BooleanFactor_, by recursively calling the topmost level, _BooleanExpression_, just like we did in the case of factors in mathematical expressions. _BooleanExpression_ itself, currently equivalent to _Condition_, needs to be modified to call the top of the complex condition recursive-descent hierarchy: _OrOperation_.
 
 Here's the complete BNF for boolean expressions.
 
@@ -70,7 +70,7 @@ Here's the complete BNF for boolean expressions.
 
 <condition>                  ::= <expression><reloperator><expression>
 <reloperator>                ::= "="|"=="|"==="|"<>"|"!="|"!=="|
-                             "<"|"<="|"=<"|">"|">=","=>"
+                                 "<"|"<="|"=<"|">"|">=","=>"
 ```
 
 ## First Step
