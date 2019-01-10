@@ -32,7 +32,7 @@ Some “virtual machines” eschew the idea of registers altogether. Instead, th
 
 You’ve probably guessed it; the CLR provides us with a stack-based “virtual machine”, whose instruction set is called  the Common Intermediate Language\(CIL\). All CLR compilers are, therefore, front-end compilers that target CIL. The CLR itself provides the back-end functionality of converting CIL to actual machine code.
 
-The CLR implements a stack, and provides a set of instructions. All data that has to be acted upon is loaded on the stack. Any instruction operates on values on the stack, by removing values from the stack, or adding a new value on to the stack. The process of removal of values is called popping, and the process of putting values in is called pushing or loading. As the name "stack" suggests, values are popped in reverse of the order they are loaded; if you load 2, and then load 3, then when you pop, you will get 3 first, then 2.
+The CLR implements a stack, and provides a set of instructions. All data that has to be acted upon is loaded on the stack. Any instruction operates on values on the stack, by removing values from the stack, or adding a new value on to the stack. The process of removal of values is called _popping_, and the process of putting values in is called _pushing_ or _loading_. As the name "stack" suggests, values are popped in reverse of the order they are loaded; if you load 2, and then load 3, then when you pop, you will get 3 first, then 2.
 
 For example, to add the values two and three, the following sequence is required.
 
