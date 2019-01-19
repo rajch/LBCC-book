@@ -110,7 +110,7 @@ Private Function IsNameCharacter(ByVal c As Char) As Boolean
     Return result
 End Function
 
-Public Sub ScanName()
+Private Sub ScanName()
     m_CurrentTokenBldr = New StringBuilder
     Do While IsNameCharacter(LookAhead)
         m_CurrentTokenBldr.Append(LookAhead)
@@ -259,7 +259,7 @@ AddCommand("print", AddressOf ParsePrintCommand)
 AddCommand("rem", AddressOf ParseRemCommand)
 ```
 
-Now, who calls these? According to the BNF, we need a parser method for \<command\>. Add the following to **Parser.vb**. This, the top level of command parsing, we will retain there.
+Now, who calls these? According to the BNF, we need a parser method for \<command>. Add the following to **Parser.vb**. This, the top level of command parsing, we will retain there.
 
 ```vbnet
 Private Function ParseCommand() As ParseStatus
