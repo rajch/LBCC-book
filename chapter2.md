@@ -215,6 +215,8 @@ Public Class Parser
 
     Public Function Parse() As ParseStatus
         Dim result As ParseStatus
+        result = CreateError(0, "Ok.")
+
         If ScanLine() Then
             result = ParseLine()
         End If
@@ -850,6 +852,8 @@ Our compiler, so far, takes one line of input and either generates code or shows
 ```vbnet
 Public Function Parse() As ParseStatus
     Dim result As ParseStatus
+    result = CreateError(0, "Ok.")
+    
     Do While ScanLine()
         result = ParseLine()
         If result.Code <> 0 Then
