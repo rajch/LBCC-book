@@ -926,6 +926,8 @@ Module Compiler
                 Console.WriteLine("Done.")
             End If
         End With
+
+        Return status.Code
     End Function
 End Module
 ```
@@ -934,7 +936,7 @@ Remember, our Parser class takes a TextReader, which it uses to read the source.
 
 Compile as usual. When the resulting Compiler.exe is run, it will check to see if any parameters have been passed on the command line. If no parameters are passed, the behavior is exactly as before. On the other hand, if a file name is passed as the first argument, that file will be parsed, and if everything is correct, be compiled into an executable file with the same name, but the extension .exe.
 
-Test this by creating a file called **calc.sic**, which should contain the following:
+Test this by creating a file called **calc.txt**, which should contain the following:
 
 ```bash
 1
@@ -946,7 +948,7 @@ Test this by creating a file called **calc.sic**, which should contain the follo
 Run our compiler with:
 
 ```bash
-Compiler.exe calc.sic
+Compiler.exe calc.txt
 ```
 
 This should create a **calc.exe** file, which when run should produce the following output.
