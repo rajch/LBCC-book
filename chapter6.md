@@ -615,6 +615,8 @@ Private Function CreateError( _
             )
         Case 2  ' Not in block
             message = errorDescription
+        Case Else
+            message = "Unknown error."
     End Select
 
     result = New ParseStatus(errorcode, _
