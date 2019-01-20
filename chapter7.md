@@ -585,7 +585,7 @@ End Function
 
 ## Error, Error On The Wall
 
-We have introduced two new error values: 3 for variable already declared and 4 for variable not declared. We have to modify `CreateError` accordingly. Make the change in **Parser.vb**.
+We have introduced two new error values: 3 for variable already declared and 4 for variable not declared. In fact, we will need one more shortly, for variable type mismatch. We have to modify `CreateError` accordingly. Make the change in **Parser.vb**.
 
 ```vbnet
 Private Function CreateError( _
@@ -631,6 +631,14 @@ Private Function CreateError( _
         Case 4  ' Variable not declared
             message = String.Format( _
                         "Variable '{0}' not declared.", _
+                        errorDescription
+            )
+            ' Error happens after scanning
+            ' variable name
+            errorpos = errorpos - TokenLength
+        Case 5  ' Variable type mismatch
+            message = String.Format( _
+                        "Type mismatch for Variable '{0}'.", _
                         errorDescription
             )
             ' Error happens after scanning
