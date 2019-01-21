@@ -723,6 +723,9 @@ Private Function ParseVariable(type As Type) _
             Else
                 ' Emit the variable
                 m_Gen.EmitLoadLocal(variable.Handle)
+                SkipWhiteSpace()
+                    
+                result = CreateError(0, "Ok.")
             End If
         End If
     End If 
@@ -786,4 +789,123 @@ You can try arbitrarily complex numeric expressions, in the assignment as well a
 
 ## Using variables in string expressions
 
-We can deal with strings in a similar fashion, by modifying the string "factor", DoString. Here is the modified version.
+We could deal with strings in a similar fashion, if we had a string "factor". Unfortunately, our string expression parser directly calls `ParseString`, with no possibility of a string being anything other than a literal, quoted string. Let's introduce a more flexible parsing structure, similar to numbers. This will also allow us to introduce brackets in a string expression. Here is the modified BNF for string expressions.
+
+```bnf
+<stringexpression>        ::= <stringfactor><concatoperation>*
+<concatoperation>         ::= <concatoperator><stringfactor>
+<concatoperator>          ::= "+"|"&"
+<stringfactor>            ::= <string>|<name>|<bracketstringexpression>
+<bracketstringexpression> ::= "(" <stringexpression> ")"
+<string>                  ::= <quote-symbol><stringcharacter>*<quote-symbol>
+<quote-symbol>            ::= '"'
+<stringcharacter>         ::= <character>|<quote-in-string>
+<quote-in-string>         ::= <quote-symbol><quote-symbol>
+<character>               ::= ? every character other than double-quote or newline ?
+```
+
+Make the changes in **Parser.vb**.
+
+```vbnet
+Private Function ParseString() As ParseStatus
+    Dim result As ParseStatus
+    
+    ScanString()
+    
+    If TokenLength = 0 And Not m_EmptyStringFlag Then
+        result = CreateError(1, "a valid string.")
+    Else
+        m_Gen.EmitString(CurrentToken)
+        result = CreateError(0,"Ok")
+    End If
+    
+    SkipWhiteSpace()
+    
+    Return result
+End Function
+
+Private Function ParseStringFactor() As ParseStatus
+    Dim result As ParseStatus
+
+    If LookAhead.Equals(""""c) Then
+        result = ParseString()
+    ElseIf IsNameStartCharacter(LookAhead) Then
+        result = ParseVariable(GetType(System.String))
+    ElseIf LookAhead.Equals("("c) Then
+        SkipCharacter()
+
+        result = ParseStringExpression()
+
+        If result.Code = 0 Then
+            If Not LookAhead.Equals(")"c) Then
+                result = CreateError(1, ")")
+            Else
+                SkipCharacter()
+            End If
+        End If
+    Else
+        result = CreateError(1, "a string.")
+    End If
+
+    Return result
+End Function
+
+Private Function ParseConcatOperator() As ParseStatus
+    Dim result As ParseStatus
+    Dim currentoperator As String = CurrentToken
+    
+    SkipWhiteSpace()
+    
+    result = ParseStringFactor()
+    
+    If result.code = 0 Then
+        m_Gen.EmitConcat()
+    End If
+    
+    Return result
+End Function	
+
+Private Function ParseStringExpression() As ParseStatus
+            
+    Dim result As ParseStatus
+    
+    result = ParseStringFactor()
+    
+    Do While result.code=0 _
+        AndAlso _
+        IsConcatOperator(LookAhead) 
+        
+        ScanConcatOperator()
+        
+        If TokenLength=0 Then
+            result = CreateError(1, "& or +")
+        Else
+            result = ParseConcatOperator()
+            SkipWhiteSpace()
+        End If
+    Loop
+
+    m_LastTypeProcessed = Type.GetType("System.String")
+
+    Return result	
+End Function
+```
+
+Reads just like the BNF. Note the call to `ParseVariable` in the appropriate place, passing the string type.
+
+## Test String Variables
+
+Compile and run. Test with the following:
+
+```sic
+Dim myname As String 
+myname = "Paula"
+String greet
+greet := myname & ", you brillant person."
+print "Hello, " + greet
+```
+
+Again, you can try arbitrarily complex expressions. The assignment will work in all cases. The Print command will work in all cases, _except when the expression starts with a variable_. 
+
+If you try to mix types, such as using a string variable in a numeric expression, or trying to assign a number to a string variable, you will get a very accurate error message.
+
