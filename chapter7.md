@@ -4,7 +4,7 @@
 
 Over the last few chapters, we have created a compiler which is capable of parsing (and generating executable code for) various kinds of expressions. In the last chapter, we made our compiler capable of understanding statements, which are instructions that expect and act on such expressions. However, one important element is missing from our concept of expressions: the _variable_.
 
-## Variable
+## Variables
 
 Simply put, a variable is a name that represents a value. Wherever a value can be used, a variable can be substituted. Here are some examples using our own expression syntax:
 
@@ -211,7 +211,7 @@ Public Class SymbolTable
         )
     End Sub
 
-    Public Function Get(name as String) As Symbol
+    Public Function Fetch(name as String) As Symbol
         Return m_SymbolTable(name.ToLowerInvariant())
     End Function
 
@@ -689,3 +689,101 @@ Z := 1=2
 
  Also try re-declaring a variable, or not declaring a variable before using it, or assigning a wrong type of expression. Our compiler will report the error accurately.
  
+ ## Using variables
+
+Now that we are done with variable declaration and assignment, it's time for Goal 3: using variables in lieu of constants.
+
+So far, SIC understands two types of constants: number and string. We parse them at the lowest levels of the relevant expression parsers. That is where we have to add the ability to use variables as well.
+
+But first, we need a method to parse a variable, of any type. Add the following to **Parser.vb**:
+
+```vbnet
+Private Function ParseVariable(type As Type) _
+                    As ParseStatus
+
+    Dim result As ParseStatus
+
+    ' Try to read variable name
+    ScanName()
+    
+    If TokenLength = 0 Then
+        result = CreateError(1, "a variable.")
+    Else
+        Dim varname As String
+        varname = CurrentToken
+
+        If Not m_SymbolTable.Exists(varname) Then
+            result = CreateError(4, varname)
+        Else
+            Dim variable As Symbol
+            variable = m_SymbolTable.Fetch(varname)
+
+            If Not variable.Type.Equals(type) Then
+                result = CreateError(5, variable.Name)
+            Else
+                ' Emit the variable
+                m_Gen.EmitLoadLocal(variable.Handle)
+            End If
+        End If
+    End If 
+
+    Return result
+End Function
+```
+
+This parser should be invoked at a point where we definitely expect a variable. One such point can be found at the 'lowest' level of numeric expression parsing: `ParseFactor`.
+
+## Using variables in numeric expressions
+
+In `ParseFactor`, we currently check if the lookahead character is a "(", in which case we call `ParseNumericExpression`. Otherwise, we call `ParseNumber`. We need to add a third possibility: if the lookahead character is a _name start_ character (a letter or an underscore), we need to process the next token as a number-type variable. Let's do this now.
+
+Make the change in **Parser.vb**, and add the new recognizer in the appropriate region.
+
+```vbnet
+Private Function IsNameStartCharacter(Byval c As Char) As Boolean
+    Return c.Equals("_"c) OrElse Char.IsLetter(c)
+End Function
+
+Private Function ParseFactor() As ParseStatus
+    Dim result As ParseStatus
+
+    If LookAhead.Equals("("c) Then
+        SkipCharacter()
+
+        result = ParseNumericExpression()
+
+        If result.Code = 0 Then
+            If Not LookAhead.Equals(")"c) Then
+                result = CreateError(1, ")")
+            Else
+                SkipCharacter()
+            End If
+        End If
+    ElseIf IsNameStartCharacter(LookAhead) Then
+        result = ParseVariable(GetType(System.Int32))
+    Else
+        result = ParseNumber()
+    End If
+
+    SkipWhiteSpace()
+
+    Return result
+End Function
+```
+
+## Test Numeric Variables
+Let's test this. Compile and run. Test with the following:
+
+```sic
+Dim i As Integer
+Integer j
+i = 39
+j := i + 2
+Print 3+j 
+```
+
+You can try arbitrarily complex numeric expressions, in the assignment as well as the print statements. The assignment statement will work in all cases. The `Print` command will work in all cases, _except when the expression starts with a variable_. More on that later.
+
+## Using variables in string expressions
+
+We can deal with strings in a similar fashion, by modifying the string "factor", DoString. Here is the modified version.
