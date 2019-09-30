@@ -1018,6 +1018,6 @@ We have also created “cradle” for all the work we will do so far, consisting
 * A combiner scanned and parser class (**Parser.vb**)
 * A “driver” which ties the parser and code generator together (**Compiler.vb**)
 
-This structure will remain unchanged in the next several chapters. We will add or modify code, mostly in the parser.
+This structure will remain unchanged in the next several chapters. We will add or modify code mostly in the parser.
 
 By now, we have done everything that most computer languages do with integer numbers. We could now take up floating-point numbers, but let’s hold that for a while. In the next chapter, we look beyond numbers to that staple of modern languages: strings.

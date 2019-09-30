@@ -16,7 +16,7 @@ When the CLR appeared, I was delighted with the features provided for compiler w
 
 The goal of this book is to teach you to create a language compiler for the CLR. That's it. This book does not aim to teach you everything about compiler construction theory. In fact, we will not even discuss several "pure theoretical" topics. Instead, we will discuss some topics which are important in creating compilers for the CLR, but not applicable elsewhere.
 
-This is not to say we will not learn anything about generic compiler construction. Whenever we actually implement a compiler construction technique, we will discuss the theory behind it, and also discuss alternative implementations. And we will implement basic as well as advanced principles; for instance, we will be implementing \(and discussing\) scanning and parsing, code generation, strong data types, and optimization.
+This is not to say we will not learn anything about generic compiler construction. Whenever we actually implement a compiler construction technique, we will discuss the theory behind it, and also discuss alternative implementations. And we will implement basic as well as advanced principles; for instance, we will implement \(and discuss\) scanning and parsing, code generation, strong data types, and optimization.
 
 ## The Approach
 
