@@ -41,7 +41,7 @@ Will this work?
 
 Some languages do not allow expressions which combine different types. Such languages require an explicit conversion from one type to another if mixing of types is required. This kind of language is said to be _strongly typed_. Examples of strongly typed languages are Haskell, ML, Pascal, C++ (this is disputed by some), and Visual Basic. 
 
-Other languages are not so strict. They convert variables of different types implicitly at run time. Such languages are said to be _weakly typed_. Examples of weakly typed languages are JavaScript (I guess one should say ECMAScript instead), Perl and Visual Basic.
+Other languages are not so strict. They convert variables of different types implicitly at run time. Such languages are said to be _weakly typed_. Examples of weakly typed languages are JavaScript ~~(I guess one should say ECMAScript instead)~~, Perl and Visual Basic.
 
 Finally (and this will be the topic of a future chapter), apart from the kind of data stored by a variable, its type also refers to how such data is stored. For example, a variable can store a single value (scalar), multiple values (array or vector), or just a reference to a value stored elsewhere (pointer or reference).
 
@@ -379,7 +379,7 @@ AddCommand("var", AddressOf ParseDimCommand)
 
 And that's how easy it is to add a synonym to one of our commands; just use the same command parser.
 
-Now, what about the second syntax, shown as \<typefirstdeclaration> in the BNF above?
+Now, what about the second syntax, shown as \<typefirstdeclaration\> in the BNF above?
 
 A parser is easy: just follow the BNF. Assume that a type name has been read, and proceed from there. Add the following to **Parser.vb**.
 
@@ -909,3 +909,177 @@ Again, you can try arbitrarily complex expressions. The assignment will work in 
 
 If you try to mix types, such as using a string variable in a numeric expression, or trying to assign a number to a string variable, you will get a very accurate error message.
 
+## Using variables in Boolean expressions
+Variables in boolean expressions are quite a challenge. Unlike numbers and strings, we cannot easily deal with them at the "factor" level. The Boolean "factor" is a condition, which in itself starts with an expression, which may start with a variable. We cannot, with any certainty, assume that the variable at that point _must_ be a boolean.
+
+So, boolean variables, like boolean expressions, require special treatment in **ParseExpression** itself. The good news is that this treatment may solve the pesky error that we encoutered whenever an expression _starts with a variable_.
+
+## In the beginning, there was a name
+Our **ParseExpression** method detects the type of the expression by the lookahead character. A digit or sign indicates a numeric expression, and a quote(") indicates a string expression. If the lookahead character is an underscore(_) or a letter, we can assume that the next token is a name. But is it the name of a variable? 
+
+There is a valid token which can appear at the beginning of an expression and looks like a name: the `not` operator. If it is, we are in a boolean expression. Fortunately, we know what happens at this point of a boolean. We can simply call **ParseNotOperator**.
+
+If the expression genuinely begins with a variable, we have a problem. The type of variable tells us which expression parser to call. We can't figure out the type until we scan the full token. However, our string and numeric parsers insist on scanning the first token of the expression themselves. There's no convenient way to let them know that we have already scanned the first token, which happens to be a variable. 
+
+How do our assignment statements work in every case, then? Well, in the case of the assignment statement, by the time we get to the expression, we already know what type it is likely to be, from the variable on the left of the assignment operator. So, we call the appropriate expression parser, and everything works.
+
+## Backtracking
+We have hit a roadblock. So far, we could reliably predict what was coming by looking at a single Lookahead character. We can't do that any longer. How do we solve this problem?
+
+The correct way would be to revisit our expression parsers, and add a way for them to allow for a pre-parsed first token. It would involve passing the pre-parsed tokem, or some kind of flag, to the top of the expession parser hierarchy, and passing it down all the way to the "factor" level.  Our boolean parser already has something like this. 
+
+There is a less correct, but shorter way. Once we have scanned a variable which starts an expression and determined its type, we can move the lookahead character back to the start of the variable, and call
+the relevant expression parser. This does cause the variable to be scanned twice, but ensures correct output without massive changes in our parsers. Moving the position of the lookahead back in this manner is known as _backtracking_.
+
+Backtracking is frowned upon, and rightly so. Let's try and understand why, in simple terms, using
+our work so far as an example.
+
+Why is backtracking necessary at all? Because of ambiguity. Consider our implementation of **ParseExpression**. An expression can be numeric, string or boolean, and we can usually tell which kind a particular one is by looking at the first character. Things are unambiguous as long as variables are not involved. The moment an expression starts with a name character, we can't tell what kind it is until we have read the variable and looked it up in the symbol table. Thus, we don't know how the rest of the expression has to be processed. The expression type is ambiguous. Only after resolving the ambiguity can we
+proceed, but by then it is too late. So we backtrack.
+
+Luckily, in our compiler, there are very few situations where there can be ambiguity regarding what comes next, and therefore where backtracking must occur. The most obvious one is when we call **ParseExpression**, and the Lookahead character is a name character. We call ParseExpression in two places so far: in the `Print` command, and in **ParseCondition**. Consider, each time we use the print statement and start the expression with a variable, the variable will be scanned twice. Furthermore, each time we use a boolean condition which starts with a variable (as most boolean expressions will), the variable will be scanned twice. As the programs that our compiler compiles get larger, this can cause performance problems for the compiler (Note: for the compiler only. Compiled code will run just fine.)!
+
+Also, in our situation, we are lucky. No code has been generated at the point where we need to backtrack. There might be situations where code was generated, and then backtracking became necessary. We would have to somehow un-generate the code!
+
+Backtracking should be avoided, and can be avoided with a little extra work. However, for the moment, we will
+backtrack. 
+
+One little aside: one of the most common places where backtracking is required is for reporting compile-time errors. We have been sort-of backtracking, in our **CreateError** method. Check out the way we handle all error cases other than case 1. Because we "sort-of" backtrack, and more importantly because we only ever report one compile-time error,this is not likely to affect the performance of our compiler.
+
+## Implementing the backtrack
+Add the following to **Parser.vb**, in the Scanner region:
+
+```vbnet
+Private Sub Backtrack()
+    If TokenLength > 0 Then
+        m_CharPos -= TokenLength
+        m_CurrentTokenBldr = New StringBuilder()
+    End If
+End Sub
+```
+This should be self-explanatory.
+
+## ParseInitialName
+Next, we will create a new parser to handle the case of a name appearing at the beginning of an expression. Add the following to **Parser.vb**:
+
+```vbnet
+Private Function ParseInitialName() As ParseStatus
+    Dim result As ParseStatus
+
+    ' Scan the name
+    ScanName()
+
+    Dim varname As String
+    varname = CurrentToken 
+
+    If CurrentToken.ToLowerInvariant() == "not" Then
+        ' This is a boolean. Backtrack and call
+        ' boolean parser
+        Backtrack()
+        result = ParseBooleanExpression()
+    Else
+        If Not m_SymbolTable.Exists(varname) Then
+            result = CreateError(4, varname)
+        Else
+            Dim variable As Symbol
+            variable = m_SymbolTable.Fetch(varname)
+
+            Select Case variable.Type.ToString()
+                Case "System.Int32"
+                    ' Backtrack, and call numeric parser
+                    Backtrack()
+                    result = ParseNumericExpression()
+                Case "System.String"
+                    ' Backtrack, and call string parser
+                    Backtrack()
+                    result = ParseStringExpression()
+                Case Else
+                    result = CreateError(1, " an Integer or String variable.")
+            End Select
+
+        End If
+    End If
+
+    Return result
+End Function
+```
+
+This scans a name, and checks to see if the token is `not`. If so, it could have called **NotOperator** as discussed. But since we have decided to use backtracking anyway, it simply backtracks and calls the boolean parser. If the scanned name is not `not` (Sorry), it checks to see if is a variable, and backtracks and calls the appropriate parser. Note that we have not yet handled boolean variables.
+
+## One more way to express yourself
+Finally, we need to change **ParseExpression** to call **ParseInitialName** where appropriate. Modify it in **Parser.vb** as follows:
+
+```vbnet
+Private Function ParseExpression( _
+                    Optional ByVal expressiontype _
+                        As Type = Nothing) _
+        As ParseStatus
+
+    Dim result As ParseStatus
+
+    ' Since we are doing the work of the scanner by using the
+    ' lookahead character, we need to initialize the token
+    ' builder
+    m_CurrentTokenBldr = New StringBuilder
+
+    If LookAhead.Equals(""""c) Then
+        result = ParseStringExpression()
+    ElseIf IsNumeric(LookAhead) Then
+        result = ParseNumericExpression()
+    ElseIf IsNameStartCharacter(LookAhead) Then
+        result = ParseInitialName()
+    ElseIf IsNotOperator(LookAhead) Then
+        result = ParseBooleanExpression()
+    ElseIf LookAhead.Equals("("c) Then
+        ' For now, assuming only numeric expressions can use ()
+        result = ParseNumericExpression()
+    Else
+        result = CreateError(1, "a boolean, numeric or string expression")
+    End If
+
+    If result.Code = 0 Then
+        If expressiontype Is Nothing Then
+            ' If a relational operator follows the expression just parsed
+            ' we are in the middle of a Boolean expression. Our work is
+            ' not yet done.
+            If IsRelOperator(LookAhead) Then
+                ' Parse a boolean expression, letting it know that the
+                ' first part has already been parsed.
+                result = ParseBooleanExpression(m_LastTypeProcessed)
+            End If
+        End If
+    End If
+
+    Return result
+End Function
+```
+
+Notice how the **IsNameStartCharacter** check happens before **IsNotOperator**. This has to be so. Think about it for a minute.
+
+## Test Variable-first Expressions
+
+Compile and run. Test with the following:
+
+```sic
+integer x
+x = 12
+print x+2
+integer y
+y = x * 2
+print y
+print y<x
+print y>x
+string z
+z := "Raj"
+print z
+print z & " Chaudhuri"
+print z=="Raj"
+print z>="Raj"
+Dim myname As String 
+myname = "Paula"
+String greet
+greet := myname & ", you brillant person."
+print greet + " Hello."
+```
+
+All of these should work, including variables in boolean expressions. Which leaves us with one last problem: _boolean variables_. 
