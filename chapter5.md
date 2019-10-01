@@ -63,7 +63,7 @@ Here's the complete BNF for boolean expressions.
 
 <notoperation>               ::= <booleanfactor>|<notoperator>
 <notoperator>                ::= <notsymbol><booleanfactor>
-<notsymbol>                  ::= "NOT"|"not"|"not"
+<notsymbol>                  ::= "NOT"|"not"|"!"
 
 <booleanfactor>              ::= <condition>|<bracketedbooleanexpression>
 <bracketedbooleanexpression> ::= "("<booleanexpression>")"

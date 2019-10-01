@@ -1330,3 +1330,255 @@ print not xx
 
 As usual, you can try arbitrarily complex expressions.
 
+## More ambiguity
+As if things were not complicated enough already. There is one more place where there can be ambiguity based on the fact that we are parsing variables now: the _NotOperation_.
+
+Recall the definition from Chapter 5. Here's the BNF for referemce:
+
+```bnf
+<notoperation>               ::= <booleanfactor>|<notoperator>
+<notoperator>                ::= <notsymbol><booleanfactor>
+<notsymbol>                  ::= "NOT"|"not"|"!"
+```
+
+As you can see, a not-operation is either a boolean "factor", or a NOT operator followed by a boolean factor. Now, a NOT operator is either the symbol ! (no problems here) or the word NOT, uppercase or lowercase(oops!).
+
+See the problem? At the start of any boolean factor, any variable starting with N, O, or T can cause the parser to try to scan a NOT operator.
+
+Try it. Try to compile the following with our compiler:
+
+```sic
+Integer n
+n:=42
+Boolean m
+m = n=42
+```
+
+You should get an "Expected NOT" error.
+
+The problem comes from the fact that we use a single lookahead character to predict what comes next. This can cause ambiguity in situations such as this one. The exact cause of our current problem is this:
+
+* A boolean expression may begin with a variable or a NOT operator
+* Both of which may begin with the letter n
+
+This problem could have been avoided if we did predictive parsing using a lookahead _token_ instead of a lookahead character. But we are too far in to bring in such a big change. So, we will cheat a bit. For the first time, we will look more than one character ahead in a recognizer method; specifically **IsNotOperator**.
+
+Rename the existing **ReadNotOperator** method to **ReadNotOperatorSymbol**, and enter the new one shown below. Make the change in the Recognizers region in **Parser.vb**.
+
+```vbnet
+Private Function IsNotOperatorSymbol(ByVal c As Char) As Boolean
+    Return "nNoOtT!".IndexOf(c) > -1
+End Function
+
+Private Function IsNotOperator(Byval c As Char) As Boolean
+    Dim result As Boolean = False
+
+    If c = "!"c Then
+        result = True
+    ElseIf Char.ToLowerInvariant(c) = "n"c AndAlso _
+        m_LineLength >= m_CharPos+2 Then
+
+        Dim peektoken As String
+        peektoken = m_ThisLine.Substring(m_CharPos,3).ToLowerInvariant()
+        If peektoken = "not" Then
+            result = True
+        End If
+    End If
+
+    Return result
+End Function
+```
+
+Finally, modify **ScanNotOperator** to use **ReadNotOperatorSymbol** instead of **ReadNotOperator**. Make the changes in the Scanner region in **Parser.vb**.
+
+```vbnet
+Private Sub ScanNotOperator()
+    m_CurrentTokenBldr = New StringBuilder
+
+    Do While IsNotOperatorSymbol(LookAhead)
+        m_CurrentTokenBldr.Append(LookAhead)
+        m_CharPos += 1
+    Loop
+
+    Select Case CurrentToken.ToLowerInvariant()
+        Case "not", "!"
+            ' Valid NOT operator
+        Case Else
+            m_CurrentTokenBldr = New StringBuilder
+    End Select
+End Sub
+```
+
+Compile and run. This time, the code which failed earlier should compile properly.
+
+## Declare and assign
+At this point, we have successfully implemented variables in our compiler. We can stop now, but I want to add a few extras.
+
+Most modern languages allow us to declare a variable and assign it an initial value in the same statement. Thus, our language should be able to correctly process lines like the following:
+
+```sic
+Dim x As Integer = 42
+String str := "Superstring"
+```
+
+Let's add this capability.
+
+## Options, options
+We have a situation where one of our constructs can be parsed in two ways. A declaration statement can be just a declaration, or an assignment as well.
+
+This is not as difficult as it seems. Once we finish our regular processing of declaration statements, we just need to check if another token exists, and is an assignment operator. In our case, this simply means checking to see if the lookahead character is an assignment operator. If it is, we need to process the assignment. Let's first process the assignment by adding the following new method, **ParseDeclarationAssignment**, to the Parser class. Add it in **Parser.vb**.
+
+```vbnet
+Private Function ParseDeclarationAssignment(ByVal variable As Symbol) _
+                                                        As ParseStatus
+    Dim result As ParseStatus
+    
+    If IsAssignmentCharacter(LookAhead) Then
+        ScanAssignmentOperator()
+
+        If TokenLength = 0 Then
+            result = CreateError(1, "= or :=")
+        Else
+            result = ParseAssignment(variable)
+        End If
+    Else
+        result = CreateError(0, "Ok")
+    End If
+
+    Return result
+End Function
+```
+
+This scans an assignment operator if available. On a successful scan, it calls the **ParseAssignment** method to parse the right side of the operator.
+
+Note that if an assignment operator is not found, **ParseDeclarationAssignment** returns a successful result. This is how we deal with the fact that the assignment part is optional.
+
+Now all that remains is to add a call to this in our two declaration parsers: **ParseTypeFirstDeclaration** and **ParseDimCommand**. Make the changes in **Parser.vb** and **Commands.vb** respectively, as shown below:
+
+```vbnet
+Private Function ParseTypeFirstDeclaration() _
+                    As ParseStatus
+    Dim result As ParseStatus
+
+    Dim typename As String
+    typename = CurrentToken
+
+    If IsValidType(typename) Then
+        ' Read a variable name
+        SkipWhiteSpace()
+        ScanName()
+
+        If TokenLength = 0 Then
+            result = CreateError(1, "a variable name.")
+        Else
+            Dim varname As String
+            varname = CurrentToken
+
+            If m_SymbolTable.Exists(varname) Then
+                result = CreateError(3, varname)
+            Else
+                Dim symbol As New Symbol( _
+                                    varname, _
+                                    GetTypeForName(typename)
+                )
+
+                symbol.Handle = m_Gen.DeclareVariable(
+                                    symbol.Name,
+                                    symbol.Type
+                                )
+
+                m_SymbolTable.Add(symbol)
+
+                SkipWhiteSpace()
+
+                result = ParseDeclarationAssignment(symbol)
+                If result.Code = 0 Then
+                    If Not EndOfLine Then
+                        result = CreateError(1, "end of statement.")
+                    End If
+                End If
+            End If
+        End If
+    Else
+        result = CreateError(1, "a valid type.")
+    End If
+
+    Return result
+End Function
+
+Public Function ParseDimCommand() As ParseStatus
+    Dim result As ParseStatus
+
+    ' Read a variable name
+    SkipWhiteSpace()
+    ScanName()
+
+    If TokenLength = 0 Then
+        result = CreateError(1, "a variable name.")
+    Else
+        Dim varname As String
+        varname = CurrentToken
+
+        If m_SymbolTable.Exists(varname) Then
+            ' Variable name already declared
+            result = CreateError(3, CurrentToken)
+        Else
+            ' Read either "as" or type
+            SkipWhiteSpace()
+            ScanName()
+
+            ' Check and ignore "As"
+            If CurrentToken.ToLowerInvariant() = "as" Then
+                ' Read type
+                SkipWhiteSpace()
+                ScanName()
+            End If
+
+            Dim typename As String
+            typename = CurrentToken
+
+            If TokenLength = 0 OrElse _
+                    Not IsValidType(typename) Then
+                result = CreateError(1, "a valid type.")
+            Else
+                Dim symbol As New Symbol( _
+                                    varname,
+                                    GetTypeForName(typename)
+                )
+
+                symbol.Handle = m_Gen.DeclareVariable( _
+                                            symbol.Name, _
+                                            symbol.Type
+                                )
+
+                m_SymbolTable.Add(symbol)
+
+                SkipWhiteSpace()
+
+                result = ParseDeclarationAssignment(symbol)
+
+                If result.Code = 0 Then
+                    If Not EndOfLine Then
+                        result = CreateError(1, "end of statement.")
+                    End If
+                End If
+            End If
+        End If
+    End If
+
+    Return result
+End Function
+```
+
+Compile and run. Test with the following:
+
+```sic
+integer y:=2
+dim x as string = "Hello"
+dim a as integer
+a = y+2
+String b = "World"
+Dim greetfirst As String := x & " "
+String fullgreeting = greetfirst + b
+Print fullgreeting
+```
