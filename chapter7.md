@@ -775,6 +775,7 @@ End Function
 ```
 
 ## Test Numeric Variables
+
 Let's test this. Compile and run. Test with the following:
 
 ```sic
@@ -910,11 +911,13 @@ Again, you can try arbitrarily complex expressions. The assignment will work in 
 If you try to mix types, such as using a string variable in a numeric expression, or trying to assign a number to a string variable, you will get a very accurate error message.
 
 ## Using variables in Boolean expressions - not yet
+
 Variables in boolean expressions are quite a challenge. Unlike numbers and strings, we cannot easily deal with them at the "factor" level. The Boolean "factor" is a condition, which in itself starts with an expression, which may start with a variable. We cannot, with any certainty, assume that the variable at that point _must_ be a boolean.
 
 So, boolean variables, like boolean expressions, require special treatment in **ParseExpression** itself. The good news is that this treatment may solve the pesky error that we encoutered whenever an expression _starts with a variable_.
 
 ## In the beginning, there was a name
+
 Our **ParseExpression** method detects the type of the expression by the lookahead character. A digit or sign indicates a numeric expression, and a quote(") indicates a string expression. If the lookahead character is an underscore(_) or a letter, we can assume that the next token is a name. But is it the name of a variable? 
 
 There is a valid token which can appear at the beginning of an expression and looks like a name: the `not` operator. If it is, we are in a boolean expression. Fortunately, we know what happens at this point of a boolean. We can simply call **ParseNotOperator**.
@@ -924,6 +927,7 @@ If the expression genuinely begins with a variable, we have a problem. The type 
 How do our assignment statements work in every case, then? Well, in the case of the assignment statement, by the time we get to the expression, we already know what type it is likely to be, from the variable on the left of the assignment operator. So, we call the appropriate expression parser, and everything works.
 
 ## Backtracking
+
 We have hit a roadblock. So far, we could reliably predict what was coming by looking at a single Lookahead character. We can't do that any longer. How do we solve this problem?
 
 The correct way would be to revisit our expression parsers, and add a way for them to allow for a pre-parsed first token. It would involve passing the pre-parsed tokem, or some kind of flag, to the top of the expession parser hierarchy, and passing it down all the way to the "factor" level.  Our boolean parser already has something like this. 
@@ -947,6 +951,7 @@ backtrack.
 One little aside: one of the most common places where backtracking is required is for reporting compile-time errors. We have been sort-of backtracking, in our **CreateError** method. Check out the way we handle all error cases other than case 1. Because we "sort-of" backtrack, and more importantly because we only ever report one compile-time error,this is not likely to affect the performance of our compiler.
 
 ## Implementing the backtrack
+
 Add the following to **Parser.vb**, in the Scanner region:
 
 ```vbnet
@@ -960,6 +965,7 @@ End Sub
 This should be self-explanatory.
 
 ## ParseInitialName
+
 Next, we will create a new parser to handle the case of a name appearing at the beginning of an expression. Add the following to **Parser.vb**:
 
 ```vbnet
@@ -1007,6 +1013,7 @@ End Function
 This scans a name, and checks to see if the token is `not`. If so, it could have called **NotOperator** as discussed. But since we have decided to use backtracking anyway, it simply backtracks and calls the boolean parser. If the scanned name is not `not` (Sorry), it checks to see if is a variable, and backtracks and calls the appropriate parser. Note that we have not yet handled boolean variables.
 
 ## One more way to express yourself
+
 Finally, we need to change **ParseExpression** to call **ParseInitialName** where appropriate. Modify it in **Parser.vb** as follows:
 
 ```vbnet
@@ -1085,6 +1092,7 @@ print greet + " Hello."
 All of these should work, including variables in boolean expressions. Which leaves us with one last problem: _boolean variables_. 
 
 ## Using variables in Boolean expressions - finally
+
 For integers and strings, we parse variable names in the "factor" level of the relevant expression parser. As discussed earlier, the boolean "factor" is basically the condition. The BNF goes like this:
 
 ```bnf
@@ -1331,6 +1339,7 @@ print not xx
 As usual, you can try arbitrarily complex expressions.
 
 ## More ambiguity
+
 As if things were not complicated enough already. There is one more place where there can be ambiguity based on the fact that we are parsing variables now: the _NotOperation_.
 
 Recall the definition from Chapter 5. Here's the BNF for referemce:
@@ -1412,6 +1421,7 @@ End Sub
 Compile and run. This time, the code which failed earlier should compile properly.
 
 ## Declare and assign
+
 At this point, we have successfully implemented variables in our compiler. We can stop now, but I want to add a few extras.
 
 Most modern languages allow us to declare a variable and assign it an initial value in the same statement. Thus, our language should be able to correctly process lines like the following:
@@ -1424,6 +1434,7 @@ String str := "Superstring"
 Let's add this capability.
 
 ## Options, options
+
 We have a situation where one of our constructs can be parsed in two ways. A declaration statement can be just a declaration, or an assignment as well.
 
 This is not as difficult as it seems. Once we finish our regular processing of declaration statements, we just need to check if another token exists, and is an assignment operator. In our case, this simply means checking to see if the lookahead character is an assignment operator. If it is, we need to process the assignment. Let's first process the assignment by adding the following new method, **ParseDeclarationAssignment**, to the Parser class. Add it in **Parser.vb**.
@@ -1582,3 +1593,44 @@ Dim greetfirst As String := x & " "
 String fullgreeting = greetfirst + b
 Print fullgreeting
 ```
+
+All of this should work. Any errors will be pointed out by our compiler.
+
+## Finish the chapter already
+
+We are done with variables. Just one more thing, and we can close the chapter on them.
+
+There's nothing to learn here - just a bit of concession for people who have experience with C-derived languages. We will allow the names `int` and `bool` to be used interchangeably with `Integer` and
+`Boolean`. Which, thanks to the work we have already done, is very simple: they need to be added in the **InitTypes** method. Change the method as follows, in **Commands.vb**:
+
+```vbnet
+Private Sub InitTypes()
+    m_typeTable = new Dictionary(Of String, Type)
+
+    ' Add types here
+    AddType("integer", GetType(System.Int32))
+    AddType("string", GetType(System.String))
+    AddType("boolean", GetType(System.Boolean))
+    AddType("int", GetType(System.Int32))
+    AddType("bool", GetType(System.Boolean))
+End Sub
+```
+
+Compile and run. Test with the following:
+
+```sic
+int i = 40
+Dim j As Integer := i + 1
+bool doWeKnowWhatIsLife = j<42
+Print i
+Print j
+Print doWeKnowWhatIsLife
+Dim areWeHappy As Boolean = 2=2
+Print doWeKnowWhatIsLife AND areWeHappy
+```
+
+I can think of a lot of little cosmetic enhancements like that. But we will keep those for later. Right now, important additions need to be made to the language.
+
+## Conclusion
+
+In this chapter, we have added the capability of handling variables to our compiler. This immediately makes boolean conditions more interesting, and opens the way for some constructs that are absolutely necessary for any imperative language: branches and loops. We will cover these in the next chapter.
