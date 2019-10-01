@@ -978,7 +978,7 @@ Private Function ParseInitialName() As ParseStatus
     Dim varname As String
     varname = CurrentToken 
 
-    If CurrentToken.ToLowerInvariant() == "not" Then
+    If CurrentToken.ToLowerInvariant() = "not" Then
         ' This is a boolean. Backtrack and call
         ' boolean parser
         Backtrack()
