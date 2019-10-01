@@ -930,7 +930,7 @@ How do our assignment statements work in every case, then? Well, in the case of 
 
 We have hit a roadblock. So far, we could reliably predict what was coming by looking at a single Lookahead character. We can't do that any longer. How do we solve this problem?
 
-The correct way would be to revisit our expression parsers, and add a way for them to allow for a pre-parsed first token. It would involve passing the pre-parsed tokem, or some kind of flag, to the top of the expession parser hierarchy, and passing it down all the way to the "factor" level.  Our boolean parser already has something like this. 
+The correct way would be to revisit our expression parsers, and add a way for them to allow for a pre-parsed first token. It would involve passing the pre-parsed token, or some kind of flag, to the top of the expession parser hierarchy, and passing it down all the way to the "factor" level.  Our boolean parser already has something like this. 
 
 There is a less correct, but shorter way. Once we have scanned a variable which starts an expression and determined its type, we can move the lookahead character back to the start of the variable, and call
 the relevant expression parser. This does cause the variable to be scanned twice, but ensures correct output without massive changes in our parsers. Moving the position of the lookahead back in this manner is known as _backtracking_.
@@ -1106,7 +1106,7 @@ For integers and strings, we parse variable names in the "factor" level of the r
 
 As you can see, the condition itself is made up of expressions, which may well start with a variable. This variable could be integer or string, or boolean. This is the only place where we can detect a boolean variable with certainty.
 
-So, the only place where we can parse a boolean variable (and decide what to do next) is in **ParseInitialName** itself. The most convenient place would be . Modify **ParseInitialName** as follows, in **Parser.vb**:
+So, the only place where we can parse a boolean variable (and decide what to do next) is in **ParseInitialName** itself. Modify **ParseInitialName** as follows, in **Parser.vb**:
 
 ```vbnet
 Private Function ParseInitialName() As ParseStatus
@@ -1184,12 +1184,10 @@ Private Function ParseCondition( _
         If TokenLength = 0 Then
             ' If the last type processed was a Boolean,
             ' a relational operator is not required
-            If Not lastexpressiontype Is Nothing Then 
-                If Not lastexpressiontype.Equals( _
+            If Not m_LastTypeProcessed.Equals( _
                                             GetType(Boolean) _ 
                                         ) Then
-                    result = CreateError(1, "a relational operator.")
-                End If
+                result = CreateError(1, "a relational operator.")
             End If
         Else
             result = ParseRelOperator()
