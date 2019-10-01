@@ -909,7 +909,7 @@ Again, you can try arbitrarily complex expressions. The assignment will work in 
 
 If you try to mix types, such as using a string variable in a numeric expression, or trying to assign a number to a string variable, you will get a very accurate error message.
 
-## Using variables in Boolean expressions
+## Using variables in Boolean expressions - not yet
 Variables in boolean expressions are quite a challenge. Unlike numbers and strings, we cannot easily deal with them at the "factor" level. The Boolean "factor" is a condition, which in itself starts with an expression, which may start with a variable. We cannot, with any certainty, assume that the variable at that point _must_ be a boolean.
 
 So, boolean variables, like boolean expressions, require special treatment in **ParseExpression** itself. The good news is that this treatment may solve the pesky error that we encoutered whenever an expression _starts with a variable_.
@@ -1083,3 +1083,250 @@ print greet + " Hello."
 ```
 
 All of these should work, including variables in boolean expressions. Which leaves us with one last problem: _boolean variables_. 
+
+## Using variables in Boolean expressions - finally
+For integers and strings, we parse variable names in the "factor" level of the relevant expression parser. As discussed earlier, the boolean "factor" is basically the condition. The BNF goes like this:
+
+```bnf
+<booleanfactor>              ::= <condition>|<bracketedbooleanexpression>
+<bracketedbooleanexpression> ::= "("<booleanexpression>")"
+
+<condition>                  ::= <expression><reloperator><expression>
+<reloperator>                ::= "="|"=="|"==="|"<>"|"!="|"!=="|
+                                 "<"|"<="|"=<"|">"|">=","=>"
+```
+
+As you can see, the condition itself is made up of expressions, which may well start with a variable. This variable could be integer or string, or boolean. This is the only place where we can detect a boolean variable with certainty.
+
+So, the only place where we can parse a boolean variable (and decide what to do next) is in **ParseInitialName** itself. The most convenient place would be . Modify **ParseInitialName** as follows, in **Parser.vb**:
+
+```vbnet
+Private Function ParseInitialName() As ParseStatus
+    Dim result As ParseStatus
+
+    ScanName()
+
+    Dim varname As String
+    varname = CurrentToken 
+
+    If CurrentToken.ToLowerInvariant() = "not" Then
+        ' This is a boolean. Backtrack and call
+        ' boolean parser
+        Backtrack()
+        result = ParseBooleanExpression()
+    Else
+        If Not m_SymbolTable.Exists(varname) Then
+            result = CreateError(4, varname)
+        Else
+            Dim variable As Symbol
+            variable = m_SymbolTable.Fetch(varname)
+
+            Select Case variable.Type.ToString()
+                Case "System.Int32"
+                    ' Backtrack, and call numeric parser
+                    Backtrack()
+                    result = ParseNumericExpression()
+                Case "System.String"
+                    ' Backtrack, and call string parser
+                    Backtrack()
+                    result = ParseStringExpression()
+                Case "System.Boolean"
+                    ' Backtrack, parse variable because boolean factor
+                    ' can't, then continue as a boolean expression
+                    Backtrack()
+                    result = ParseVariable(GetType(Boolean))
+                    If result.Code = 0 Then
+                        result = ParseBooleanExpression(GetType(Boolean))
+                    End If
+                Case Else
+                    result = CreateError(1, " an Integer or String variable.")
+            End Select
+
+        End If
+    End If
+
+    Return result
+End Function
+```
+
+Note the added case for a boolean type variable. If the name just scanned is a boolean, we backtrack and call **ParseVariable** with the boolean type parameter, which will take care of emitting it on the stack. And then we call **ParseBooleanExpression** with a parameter, which lets it know that the first token in that expression has already been parsed. 
+
+Now, we need to add some more checks in the boolean parse tree. The first is that if a _condition starts with a boolean variable, the relational operator is optional_. A boolean variable by itself is a valid condition.
+
+Change **ParseCondition** as follows, in **Parser.vb**:
+
+```vbnet
+Private Function ParseCondition( _
+                    Optional lastexpressiontype As Type = Nothing _
+    ) As ParseStatus
+
+    Dim result As ParseStatus
+
+    If lastexpressiontype Is Nothing Then
+        result = ParseExpression(Type.GetType("System.Boolean"))
+    Else
+        m_LastTypeProcessed = lastexpressiontype
+        result = CreateError(0,"")
+    End If
+
+    If result.Code = 0 Then
+
+        ScanRelOperator()
+
+        If TokenLength = 0 Then
+            ' If the last type processed was a Boolean,
+            ' a relational operator is not required
+            If Not lastexpressiontype Is Nothing Then 
+                If Not lastexpressiontype.Equals( _
+                                            GetType(Boolean) _ 
+                                        ) Then
+                    result = CreateError(1, "a relational operator.")
+                End If
+            End If
+        Else
+            result = ParseRelOperator()
+            SkipWhiteSpace()
+        End If
+    End If
+
+    Return result
+End Function
+```
+
+Next, the case where a relational operator does follow a boolean variable. The only relational operators allowed for booleans are equality and inequality. We can check for this in **ParseRelOperator**. Modify it in **Parser.vb** as follows:
+
+```vbnet
+Private Function ParseRelOperator() _
+        As ParseStatus
+        
+    Dim result As ParseStatus
+    Dim reloperator As String = CurrentToken
+    Dim conditiontype As Type = m_LastTypeProcessed
+    
+    SkipWhiteSpace()
+    
+    ' The expression after a relational operator
+    ' should match the type of the expression
+    ' before it
+    If conditiontype.Equals( _
+            Type.GetType("System.Int32") _
+        ) Then
+
+        result = ParseNumericExpression()
+    ElseIf conditiontype.Equals( _
+            Type.GetType("System.String") _
+        ) Then
+
+        result = ParseStringExpression()
+    ElseIf conditiontype.Equals( _
+            Type.GetType("System.Boolean") _
+        ) Then
+        ' Boolean conditions support only equality or
+        ' inequality comparisons
+        Select Case reloperator
+            Case "=","==","===", "<>", "!=", "!=="
+                result = ParseBooleanExpression()
+            Case Else
+                result = CreateError(1, "and = or <> operator")
+        End Select
+        
+    Else
+        result = CreateError(1, "an expression of type " & _
+                        conditiontype.ToString())
+    End If
+
+    If result.Code = 0 Then
+        GenerateRelOperation(reloperator, conditiontype)
+    End If
+
+    Return result
+End Function
+```
+
+Finally, if a relation operator has been used with a boolean variable, we need to emit the relevant CIL. Luckily, the opcodes are the same as Integers. Change **GenerateRelOperation** in **Parser.vb** as follows:
+
+```vbnet
+Private Sub GenerateRelOperation( _
+        reloperator As String, _
+        conditionType As Type)
+        
+    If conditionType.Equals( _
+            Type.GetType("System.Int32")
+        ) Then
+
+        Select Case reloperator
+            Case "=", "==", "==="
+                m_Gen.EmitEqualityComparison()
+            Case ">"
+                m_Gen.EmitGreaterThanComparison()
+            Case "<"
+                m_Gen.EmitLessThanComparison()
+            Case ">=", "=>"
+                m_Gen.EmitGreaterThanOrEqualToComparison()
+            Case "<=", "=<"
+                m_Gen.EmitLessThanOrEqualToComparison()
+            Case "<>", "!=", "!=="
+                m_Gen.EmitInEqualityComparison()
+        End Select
+
+    ElseIf conditionType.Equals( _
+            Type.GetType("System.String")
+        ) Then
+
+        Select Case reloperator
+            Case "=", "==", "==="
+                m_Gen.EmitStringEquality()
+            Case ">"
+                m_Gen.EmitStringGreaterThan()
+            Case "<"
+                m_Gen.EmitStringLessThan()
+            Case ">=", "=>"
+                m_Gen.EmitStringGreaterThanOrEqualTo()
+            Case "<=", "=<"
+                m_Gen.EmitStringLessThanOrEqualTo()
+            Case "<>", "!=", "!=="
+                m_Gen.EmitStringInequality()
+        End Select
+    ElseIf conditionType.Equals( _
+            Type.GetType("System.Boolean")
+        ) Then
+
+        Select Case reloperator
+            Case "=", "==", "==="
+                m_Gen.EmitEqualityComparison()
+            Case "<>", "!=", "!=="
+                m_Gen.EmitInEqualityComparison()
+        End Select
+    End If
+End Sub
+```
+
+And now boolean variables are ready to be tested.
+
+## Test Boolean Variables
+
+Compile and run. Test with the following:
+
+```sic
+var xx as boolean
+var yy as boolean
+xx = 1=1
+yy = 1=2
+print "xx"
+print xx
+print "yy"
+print yy
+print "xx = yy"
+print xx = yy
+print "xx = xx"
+print xx = xx
+print "xx and yy"
+print xx and yy
+print "xx or yy"
+print xx or yy
+print "not xx"
+print not xx
+```
+
+As usual, you can try arbitrarily complex expressions.
+
