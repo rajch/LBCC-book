@@ -11,3 +11,4 @@
 * [Chapter 5 - Booleans Part II](chapter5.md)
 * [Chapter 6 - Statements](chapter6.md)
 * [Chapter 7 - Variables](chapter7.md)
+* [Chapter 8 - Branches and Loops Part I](chapter8.md)
