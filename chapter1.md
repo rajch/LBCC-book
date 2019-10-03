@@ -22,7 +22,7 @@ Instructions operate on one or more units of data, and can result in more data b
 
 The number of registers available, the actual instructions that operate on then, and the optimal way that they can be used differs from microprocessor to microprocessor. This makes life difficult for compiler writers, as they would have to deeply understand processor architectures to generate optimal code.
 
-The difficulty can be mitigated somewhat by splitting the process of compilation into two parts:_front-end_ and _back-end_. Instead of generating code for an actual microprocessor, the front-end compiler would generate code for an intermediate, hypothetical “virtual microproccessor”, which would define a neutral set of registers and instructions. The back-end compiler would be be responsible for converting the “intermediate language” to the real instructions for a target microprocessor, in a way that optimally uses the registers available to the target.
+The difficulty can be mitigated somewhat by splitting the process of compilation into two parts:_front-end_ and _back-end_. Instead of generating code for an actual microprocessor, the front-end compiler would generate code for an intermediate, hypothetical “virtual microprocessor”, which would define a neutral set of registers and instructions. The back-end compiler would be be responsible for converting the “intermediate language” to the real instructions for a target microprocessor, in a way that optimally uses the registers available to the target.
 
 This makes life simpler by having a single well-defined “virtual machine”, whose “intermediate language” \(meaning registers and instruction set\) is the only one that front-end compiler writers have to generate. Also, multiple back-ends may be written, so that a single program compiled to target the “virtual machine” can finally run on multiple real microprocessors.
 
@@ -232,7 +232,7 @@ Here is a quick and dirty explanation of what is going on. Detailed explanations
 
 6. When the Save method is called, the first thing it does is emit an Opcode called Ret. Every method in a CLR executable must end with the Ret instruction. Thereafter, we specify that MainMethod is the entry point of the assembly, which means that when the assembly EXE file is run, the code in MainMethod should be executed. We also specify that the assembly is a "console application". Finally, we save the assembly to an EXE file, the name of which had been passed to Init and stored in a field called m_SaveToFile.
 
-The method EmitWriteLine emits IL instructions to cause the generated EXE to print the last number on the stack to the screen. The technique used in this method, as well as the actual Opcode emitted, **Call**, will be discussed in detail in a future chapter. As of now, we need to remember only this: just like EmitAdd expects two numbers on the stack, and pops them, EmitWriteline expects a single number on top of the stack, and pops it. The number is displayed on the screen.
+The method EmitWriteLine emits IL instructions to cause the generated EXE to print the last number on the stack to the screen. The technique used in this method, as well as the actual Opcode emitted, **Call**, will be discussed in detail in a future chapter. As of now, we need to remember only this: just like EmitAdd expects two numbers on the stack, and pops them, EmitWriteLine expects a single number on top of the stack, and pops it. The number is displayed on the screen.
 
 ## Testing CodeGen
 

@@ -188,7 +188,7 @@ Which is where we run into a problem. Our code generator currently does not know
 
 ## Modifying CodeGen
 
-We have not made any changes to CodeGen since Chapter 1. We have to do so now, to accomodate string concatenation.
+We have not made any changes to CodeGen since Chapter 1. We have to do so now, to accommodate string concatenation.
 
 Unlike everything else we have parsed so far, the operation of string concatenation _does not have a corresponding CIL instruction_. Instead, we have to rely on a class provided by the CLR base class library. The class is `System.String`, which has a shared (static) method called `Concat` that does what we want.
 
@@ -314,7 +314,7 @@ Compile and run. Test with the following strings:
 
 ## Mixing it up
 
-So, at this point, we have a parser that can parse numeric expressions, and string expressions. What we now want to do is to make it parse both, interchangably.
+So, at this point, we have a parser that can parse numeric expressions, and string expressions. What we now want to do is to make it parse both, interchangeably.
 
 Our parsing is line-oriented, that is, we parse one line at a time. Therefore, a given line can be either a string expression or a numeric expression. But successive lines can be either one of the two. And therein lies the problem.
 

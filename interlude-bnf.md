@@ -1,6 +1,6 @@
 # Interlude - Grammars and BNF
 
-We have written a lot of code already, to compile a fairly large number of things - including numbers, terms, factors, strings, conditions, and three different kind of expression. To help us keep track of all the things we compile, let's take a short break from code, and learn a useful theorical subject: _grammars_.
+We have written a lot of code already, to compile a fairly large number of things - including numbers, terms, factors, strings, conditions, and three different kind of expression. To help us keep track of all the things we compile, let's take a short break from code, and learn a useful theoretical subject: _grammars_.
 
 ## What is _a_ Grammar?
 
@@ -8,9 +8,9 @@ A grammar, also called a _formal grammar_, is a set of rules which describe stri
 
 The subject of formal language theory, and especially of formal grammar, makes for fascinating reading. But following this book's philosophy of "accurate enough", here is what we need to know.
 
-A grammar consists of a set of rules. These rules, called _production rules_ or _productions_, are built from _terminal symbols_ and _nonterninal symbols_. A _non-terminal symbol_ is a valid concept in the grammar's language - but which does not actually appear in the source code. For example, **relationaloperator** is a nonterminal symbol - it represents an inportant concept to be parsed, but does not appear directly in the source code. The source code contains symbols such as "<" or "=" instead - these are called _terminal symbols_. A production defines nonterminal symbols in terms of combinations of terminal symbols and other nonterminal symbols. The production specifies what kind of combination is valid.
+A grammar consists of a set of rules. These rules, called _production rules_ or _productions_, are built from _terminal symbols_ and _nonterminal symbols_. A _non-terminal symbol_ is a valid concept in the grammar's language - but which does not actually appear in the source code. For example, **relationaloperator** is a nonterminal symbol - it represents an important concept to be parsed, but does not appear directly in the source code. The source code contains symbols such as "<" or "=" instead - these are called _terminal symbols_. A production defines nonterminal symbols in terms of combinations of terminal symbols and other nonterminal symbols. The production specifies what kind of combination is valid.
 
-Let's undestand this with an example. Let us say that the nonterminal symbol **digit** can be any one of the following terminal symbols: "0", "1", "2", "3", "4", "5", "6", "7", "8" and "9", and nothing else. This is a production, which can be written as follows:
+Let's understand this with an example. Let us say that the nonterminal symbol **digit** can be any one of the following terminal symbols: "0", "1", "2", "3", "4", "5", "6", "7", "8" and "9", and nothing else. This is a production, which can be written as follows:
 
 ```bnf
 <digit> ::= "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
@@ -61,11 +61,11 @@ Moving along, we have:
 <bracketednumericexpression> ::= "("<numericexpression>")"
 ```
 
-[Chapter 2](chapter2.md) describes this hiearchy in detail.
+[Chapter 2](chapter2.md) describes this hierarchy in detail.
 
 Now. Notice how the productions with terminal symbols are taken care of by our `Scan` methods with the help of our `Is` methods? And from the level we have productions involving only terminals, we have a corresponding `Parse` method? Go ahead, check.
 
-This is why we are taking the time out to learn BNF. It will help us specify new feautures using a formal notation, which is less cumbersome than explaining it in English every time. Also, the BNF will show us what recognizer, scanner and parser methods to write.
+This is why we are taking the time out to learn BNF. It will help us specify new features using a formal notation, which is less cumbersome than explaining it in English every time. Also, the BNF will show us what recognizer, scanner and parser methods to write.
 
 ## Start Symbol
 
@@ -75,7 +75,7 @@ If, for instance, we take our numeric expression as an independent language, the
 
 ## The grammar for StringExpression
 
-Here is the grammer for string expressions:
+Here is the grammar for string expressions:
 
 ```bnf
 <stringexpression> ::= <string><concatoperation>*
@@ -88,7 +88,7 @@ Here is the grammer for string expressions:
 <character>        ::= ? every character other than double-quote or newline ?
 ```
 
-Note the `? every character other than double-quote or newline ?` in the production of `<character>`? This, again, is not a part of pure BNF, but a conevenience that we are adapting from one of the extended dialects. This saves me from writing every possible character in double quotes, separated by pipes. So, ? means don't treat the enclosed as pure BNF; instead, read and understand it as English.
+Note the `? every character other than double-quote or newline ?` in the production of `<character>`? This, again, is not a part of pure BNF, but a convenience that we are adapting from one of the extended dialects. This saves me from writing every possible character in double quotes, separated by pipes. So, ? means don't treat the enclosed as pure BNF; instead, read and understand it as English.
 
 Again, if you check our code in [Chapter 3](chapter3.md), you will see that the BNF maps very well.
 

@@ -13,7 +13,7 @@ Within the imperative paradigm, there is a more focussed paradigm called _struct
 
  Languages can be further classified into even more focused paradigms such _procedural_ and _object oriented_. Also, there is an entire other tree of non-imperative paradigms, starting with _declarative programming_, and specializing further into _functional programming_, _logic programming_ and so on. But let's not get into that discussion now.
 
-Most people are used to the imperative paradigm, and more specifically structured programmaing. Thus, our language (called SIC, remember?) will also be a structured, imperative one.
+Most people are used to the imperative paradigm, and more specifically structured programming. Thus, our language (called SIC, remember?) will also be a structured, imperative one.
 
 ## Making a statement
 
@@ -64,7 +64,7 @@ compound statement. The statements we will compile are:
 |`REM`|This statement will ignore the rest of the line after itself.|
 |`Comment`...`End Comment`|This pair of instructions will demonstrate compound statements. All lines between a `Comment` statement and its matching `End Comment` will be ignored by the compiler.|
 
-To keep things Basically simple (yes, yes), these statements will be case-insensitve. For example, `Print` can be written as `print` or `PRINT` or even `pRiNt`.
+To keep things Basically simple (yes, yes), these statements will be case-insensitive. For example, `Print` can be written as `print` or `PRINT` or even `pRiNt`.
 
 ## The Approach
 
@@ -99,7 +99,7 @@ following to the appropriate parts of **Parser.vb**
 Private Function IsNameCharacter(ByVal c As Char) As Boolean
     Dim result As Boolean = False
     If Char.IsDigit(c) AndAlso _
-                Tokenlength > 0 Then
+                TokenLength > 0 Then
         ' Digits allowed after start of name
         result = True
     ElseIf c.Equals("_"c) Then
@@ -204,7 +204,7 @@ Here's the BNF:
 <command>       ::= <remcommand>|<printcommand>
 <remcommand>    ::= "rem" <restofline>
 <restofline>    ::= ? Anything. ?
-<printcommand>  ::= "print" <exression>
+<printcommand>  ::= "print" <expression>
 ```
 
 We have put some boilerplate code in **Commands.vb** that will take care of maintaining a list of valid commands, and validating against it. Using it, we can translate the BNF easily. Let's go bottom up. First, the parser method for the `Print` command. Add it to the "Commands" region in **Commands.vb**.

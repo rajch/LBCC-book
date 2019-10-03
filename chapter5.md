@@ -20,7 +20,7 @@ An expression can contain any permutation and combination of conditions and oper
 
 In processing such an expression, `NOT` takes precedence over `AND`, which takes precedence over `OR`. So, in the expression :
 
-```psedocode
+```pseudocode
 <condition 2B> OR NOT <condition 2> AND <condition B>
 ```
 

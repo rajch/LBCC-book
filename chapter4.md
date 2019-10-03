@@ -136,7 +136,7 @@ End Sub
 
 ## Parsing Relational Operators
 
-First, let's write a recognizer and scanner for relational operators. Since there are muliple relational operators, the scanner has to check the token for validity before letting the parser have it.
+First, let's write a recognizer and scanner for relational operators. Since there are multiple relational operators, the scanner has to check the token for validity before letting the parser have it.
 
 We will allow the following relational operators:
 

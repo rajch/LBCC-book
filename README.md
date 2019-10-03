@@ -4,7 +4,7 @@ This book demonstrates the process of creating a compiler for the Common Languag
 
 In short, it's meant for **fun**. Any learning that results from reading it should be considered a side effect, and completely to the reader's credit.
 
-This book owes its existence to a brilliant 15-part article series by Dr. Jack Crenshaw, called "**Let's Build a Compiler**". The orginal series may be found at [http://compilers.iecc.com/crenshaw/](http://compilers.iecc.com/crenshaw/). You really should read it, if you are interested in writing compilers. Especially if you are not a Computer Science student. And even if you are.
+This book owes its existence to a brilliant 15-part article series by Dr. Jack Crenshaw, called "**Let's Build a Compiler**". The original series may be found at [http://compilers.iecc.com/crenshaw/](http://compilers.iecc.com/crenshaw/). You really should read it, if you are interested in writing compilers. Especially if you are not a Computer Science student. And even if you are.
 
 Please read this book too, and run the code therein. A working compiler in every chapter from Chapter 1 onwards, I promise.
 

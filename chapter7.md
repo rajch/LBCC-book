@@ -118,7 +118,7 @@ Now, we need to actually emit code that uses these local variables. As mentioned
 |OpCode|What it does|
 |---|---|
 |StLoc|Takes a variable index as a parameter. Pops the last value off the stack, and stores it in that variable. If the types do not match, there is a run-time error.|
-|LdLoc|Takes a variable index as a parameter. Retrives the value stored in that variable, and pushes it on to the stack.|
+|LdLoc|Takes a variable index as a parameter. Retrieves the value stored in that variable, and pushes it on to the stack.|
 
 Add the following to **CodeGen.vb**.
 
@@ -237,7 +237,7 @@ Symbols are the second kind of _names_ that we have to work with (Commands were 
 
 Type names will appear in source code, specifically in declaration statements. We will need to validate them, and convert them to the compiler-internal representation, which is `System.Type`. Let's write some boilerplate code for doing this. 
 
-The approach we will take is similar to commands: have a table of valid type names and their `System.Type` equivalients.
+The approach we will take is similar to commands: have a table of valid type names and their `System.Type` equivalents.
 
 Add the following to **Commands.vb**.
 
@@ -368,7 +368,7 @@ End Function
 
 It reads pretty much like the BNF. Scan a variable name, then "As", and then a type name, with appropriate validations. If all is well, create a symbol, call `DeclareLocal` in CodeGen, and add the symbol to the symbol table.
 
-Note the new error value of 3. If a variable name has already been declared, we do not allow re-declaration. We will have to modify `CreateError` to accomodate the new error. We will do that in a bit. For now, let us add the `Dim` command to the list of valid commands. In fact, let me make an enhancement here: we can use `Var` as a synonym for `Dim`.
+Note the new error value of 3. If a variable name has already been declared, we do not allow re-declaration. We will have to modify `CreateError` to accommodate the new error. We will do that in a bit. For now, let us add the `Dim` command to the list of valid commands. In fact, let me make an enhancement here: we can use `Var` as a synonym for `Dim`.
 
 Add the following to the `InitCommands` method in **Commands.vb**.
 
@@ -914,7 +914,7 @@ If you try to mix types, such as using a string variable in a numeric expression
 
 Variables in boolean expressions are quite a challenge. Unlike numbers and strings, we cannot easily deal with them at the "factor" level. The Boolean "factor" is a condition, which in itself starts with an expression, which may start with a variable. We cannot, with any certainty, assume that the variable at that point _must_ be a boolean.
 
-So, boolean variables, like boolean expressions, require special treatment in **ParseExpression** itself. The good news is that this treatment may solve the pesky error that we encoutered whenever an expression _starts with a variable_.
+So, boolean variables, like boolean expressions, require special treatment in **ParseExpression** itself. The good news is that this treatment may solve the pesky error that we encountered whenever an expression _starts with a variable_.
 
 ## In the beginning, there was a name
 
@@ -930,7 +930,7 @@ How do our assignment statements work in every case, then? Well, in the case of 
 
 We have hit a roadblock. So far, we could reliably predict what was coming by looking at a single Lookahead character. We can't do that any longer. How do we solve this problem?
 
-The correct way would be to revisit our expression parsers, and add a way for them to allow for a pre-parsed first token. It would involve passing the pre-parsed token, or some kind of flag, to the top of the expession parser hierarchy, and passing it down all the way to the "factor" level.  Our boolean parser already has something like this. 
+The correct way would be to revisit our expression parsers, and add a way for them to allow for a pre-parsed first token. It would involve passing the pre-parsed token, or some kind of flag, to the top of the expression parser hierarchy, and passing it down all the way to the "factor" level.  Our boolean parser already has something like this. 
 
 There is a less correct, but shorter way. Once we have scanned a variable which starts an expression and determined its type, we can move the lookahead character back to the start of the variable, and call
 the relevant expression parser. This does cause the variable to be scanned twice, but ensures correct output without massive changes in our parsers. Moving the position of the lookahead back in this manner is known as _backtracking_.
@@ -1340,7 +1340,7 @@ As usual, you can try arbitrarily complex expressions.
 
 As if things were not complicated enough already. There is one more place where there can be ambiguity based on the fact that we are parsing variables now: the _NotOperation_.
 
-Recall the definition from Chapter 5. Here's the BNF for referemce:
+Recall the definition from Chapter 5. Here's the BNF for reference:
 
 ```bnf
 <notoperation>               ::= <booleanfactor>|<notoperator>

@@ -18,8 +18,8 @@ If you like, you can actually type/copy-and-paste the code from the book as you 
 
 ## Developing with Mono - command line
 
-1. Download and install Mono. On Linux, be sure to get the `mono-all` package, or ensure that you have the `mono`, `mono-devel`, `mono-utils` and `mono-vbnc` packages.
-2. Compile using the `vbnc` command as shown in each chapter. Whereever the text says `vbc`, substitute `vbnc`.
+1. Download and install Mono. On Linux, be sure to get the `mono-all` or `mono-complete` package, or ensure that you have the `mono`, `mono-devel`, `mono-utils` and `mono-vbnc` packages.
+2. Compile using the `vbnc` command as shown in each chapter. Wherever the text says `vbc`, substitute `vbnc`.
 3. Where the text asks you to run a .exe file, use `mono <whatever>.exe`.
 
 ## A bit of history
