@@ -26,7 +26,7 @@ What about high-level languages? In the early days, most languages had some form
 Goto <label>
 ```
 
-where \<label\> was some way of marking a location in the program; perhaps a line number or a name. The `goto` statement has been discouraged for years, because it supposedly encourages sloppy, unreadable programming. It can be quite difficult (for humans) to read and understand a program littered with `goto` statements. Nevertheless, in many early programming languages, the `goto` statement was the only way to both conditionally execute (or not execute) statements, and execute statements repeatedly.
+where `<label>` was some way of marking a location in the program; perhaps a line number or a name. The `goto` statement has been discouraged for years, because it supposedly encourages sloppy, unreadable programming. It can be quite difficult (for humans) to read and understand a program littered with `goto` statements. Nevertheless, in many early programming languages, the `goto` statement was the only way to both conditionally execute (or not execute) statements, and execute statements repeatedly.
 
 As programming languages developed, several control flow constructs were added to improve the clarity and quality of programs. Such constructs could be used instead of `goto` statements. The use of such constructs collectively came to known as _structured programming_.
 
@@ -71,7 +71,7 @@ We will also introduce a common loop construct in this chapter: the `While` stat
 While <boolean expression>
     <block>
     [Continue While]
-[   Exit While]
+    [Exit While]
 End While
 ```
 
@@ -87,9 +87,7 @@ To begin with, let us parse the `If` statement. This is the point where we ask t
 
 Thus far, we have been emitting CIL instructions as soon as we parse anything. In the resulting executable, these instructions are executed in the order in which they were emitted. How do we cause instructions to be executed out of order?
 
-Like any other "machine" language, CIL provides jump or branch instructions, which cause execution to, well, jump to another instruction. In CIL, the destination of such jump instructions is a number, which is a signed offset from the current instruction. This means that if we emit a branch instruction with the offset 4, the next instruction executed will be the one four places after the current instruction; if we use the offset -3, it will be the one three places before.
-
-    The above explanation is a simplification. The offset is actually calculated in bytes, starting from the start of the instruction following the jump instruction itself. To properly calculate the offset, we need to know how many bytes are taken up by each instruction and its parameters. Fortunately, because we use the Reflection Emit library to generate CIL, we don't have to calculate the offset ourselves.
+Like any other "machine" language, CIL provides jump or branch instructions, which cause execution to, well, jump to another instruction. In CIL, the destination of such jump instructions is a number, which is a signed offset from the current instruction. This means that if we emit a branch instruction with the offset 4, the next instruction executed will be the one four places after the current instruction; if we use the offset -3, it will be the one three places before[^1].
 
 I'm sure you can see a problem immediately. In a parser like ours, at the point when a jump instruction must be emitted, we don't yet know the exact offset to jump to. To understand this, let us examine how our `If` statement might translate down to CIL.
 
@@ -102,11 +100,11 @@ So, at this point, we will enhance our CodeGen class with the ability to define 
 
 |OpCode|What it does|
 |---|---|
-|Brfalse ]<target\>|Expects a boolean or integer value (It can work with some other values, but let's stick to those two for now) on the stack. If the value is False or zero, jumps to the target location specified.|
-|Brtrue \<target\>|Expects a boolean or integer value on the stack. If the value is True or non-zero, jumps to the target location specified.|
-|Br \<target\>|Unconditionally jumps to the target location specified.|
+|Brfalse _target_|Expects a boolean or integer value (It can work with some other values, but let's stick to those two for now) on the stack. If the value is False or zero, jumps to the target location specified.|
+|Brtrue _target_|Expects a boolean or integer value on the stack. If the value is True or non-zero, jumps to the target location specified.|
+|Br _target_|Unconditionally jumps to the target location specified.|
 
-The \<target\> is a Label in all cases.
+The _target_ is a Label in all cases.
 
 ## Modifying CodeGen
 
@@ -614,7 +612,7 @@ There is one remaining problem, though. Suppose we have an `If`, followed by an 
 The first `If` will generate a StartPoint which will be the same as the EndPoint. The first `ElseIf`
 will generate a new EndPoint, use the old StartPoint, and generate a new StartPoint. The second `ElseIf` will use the old EndPoint, use the old StartPoint, and generate a new StartPoint. Then the `If` block will end, and while doing so, use the EndPoint. What happens to the StartPoint generated by the last `ElseIf`? If there was an `Else`, it would have been taken care of. Since the `Else` is optional, we need to take care of it.
 
-To summarize, when an `If` block ends, if an `ElseIf` statement has been processed (StartPoint is different from EndPoint) and an `Else` statement has not been processed (m_ElseFlag is false), we need to emit the dangling StartPoint, _before_ emitting the EndPoint. Let's do that now. Modify **ParseIfCommand** in **Commands.vb**, as follows:
+To summarize, when an `If` block ends, if an `ElseIf` statement has been processed (StartPoint is different from EndPoint) and an `Else` statement has not been processed (m\_ElseFlag is false), we need to emit the dangling StartPoint, _before_ emitting the EndPoint. Let's do that now. Modify **ParseIfCommand** in **Commands.vb**, as follows:
 
 ```vbnet
 Public Function ParseIfCommand() As ParseStatus
@@ -1000,3 +998,6 @@ Try introducing errors, such as putting an `Exit While` or a `Continue While` ou
 ## Conclusion
 
 To quote Dr. Jack Crenshaw, "We could stop right here, and have a language that works." Our two constructs, `If` and `While`, are enough to take care of any iteration and selection cases that are required in a language like ours. However, most languages provide some more constructs, and so will we. In the next chapter, we will look at some more loop and branch constructs. See you then.
+
+---
+[^1] This is a simplification. The offset is actually calculated in bytes, starting from the start of the instruction following the jump instruction itself. To properly calculate the offset, we need to know how many bytes are taken up by each instruction and its parameters. Fortunately, because we use the Reflection Emit library to generate CIL, we don't have to calculate the offset ourselves.
