@@ -259,7 +259,7 @@ AddCommand("print", AddressOf ParsePrintCommand)
 AddCommand("rem", AddressOf ParseRemCommand)
 ```
 
-Now, who calls these? According to the BNF, we need a parser method for \<command>. Add the following to **Parser.vb**. This, the top level of command parsing, we will retain there.
+Now, who calls these? According to the BNF, we need a parser method for `<command>`. Add the following to **Parser.vb**. This, the top level of command parsing, we will retain there.
 
 ```vbnet
 Private Function ParseCommand() As ParseStatus
@@ -550,7 +550,7 @@ Private Function ParseCommentCommand() As ParseStatus
 End Function
 ```
 
-The parser for the `Comment` command checks that line contains nothing other than the \<name\> "Comment". If so, it starts a new block of type "comment", sets a parser-level flag called `m_inCommentBlock` to `True`, and and calls `ParseBlock` to process it.
+The parser for the `Comment` command checks that line contains nothing other than the `<name>` "Comment". If so, it starts a new block of type "comment", sets a parser-level flag called `m_inCommentBlock` to `True`, and and calls `ParseBlock` to process it.
 
 Notice how we are storing the current value of the flag before calling `ParseBlock`, and restoring it after `ParseBlock` returns. Can you guess why we are doing this?
 

@@ -297,7 +297,7 @@ Goal 1 above gives us two syntaxes for a declaration statement. Here's the BNF:
 <typefirstdeclaration>     ::= <type> <name>
 ```
 
-I have made one small enhancement; the word "As" in optional in the \<dimcommand> production.
+I have made one small enhancement; the word "As" in optional in the `<dimcommand>` production.
 
 `Dim` is a command, like others we have already parsed. So let's write a parser for it.
 
@@ -379,7 +379,7 @@ AddCommand("var", AddressOf ParseDimCommand)
 
 And that's how easy it is to add a synonym to one of our commands; just use the same command parser.
 
-Now, what about the second syntax, shown as \<typefirstdeclaration\> in the BNF above?
+Now, what about the second syntax, shown as `<typefirstdeclaration>` in the BNF above?
 
 A parser is easy: just follow the BNF. Assume that a type name has been read, and proceed from there. Add the following to **Parser.vb**.
 
@@ -445,7 +445,7 @@ Goal 2 gives us the syntax for an assignment statement. Here's the BNF:
 <assignmentoperator>          ::= "="|":="
 ```
 
-We have to validate that the variable \<name> exists, and that the type of <\expression> matches the type of the variable. We already have most of the plumbing required, except a scanner for the assignment operator. Let's write that first.
+We have to validate that the variable `<name>` exists, and that the type of `<expression>` matches the type of the variable. We already have most of the plumbing required, except a scanner for the assignment operator. Let's write that first.
 
 Add the following to the appropriate regions of **Parser.vb**:
 
