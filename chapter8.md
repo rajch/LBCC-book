@@ -250,6 +250,8 @@ End Sub
 
 Adding a command simply means a call to **AddCommand** from the **InitCommands** method. From now on, this particular change will not be shown in the text again. We will mention that the command has been added.
 
+## Testing the If Block
+
 Compile and run. Test with the following:
 
 ```sic
@@ -944,6 +946,8 @@ Private Sub InitCommands()
     AddCommand("continue",  AddressOf ParseLoopControlCommand)
 End Sub
 ```
+
+## Testing the While Loop
 
 Compile and run. Test with this:
 
