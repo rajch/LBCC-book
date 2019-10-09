@@ -686,7 +686,7 @@ Public Function ParseIfCommand() As ParseStatus
     Return result
 End Function
 ```
-Why do this at all? Why not just ignore the dangling label that we generated? Well, the Reflection Emit library, in specific, the TypeBuilder class does not permit this. Every label defined using **ILGenerator.DefineLabel** must have a corresponding **ILGenerator.MarkLabel**. I did not find this fact in the official documentation of the Reflection.Emit namespace.
+Why do this at all? Why not just ignore the dangling label that we generated? Well, the Reflection Emit library, in specific, the TypeBuilder class does not permit this. Every label defined using **ILGenerator.DefineLabel** must have a corresponding **ILGenerator.MarkLabel**. If there isn't, the **TypeBuilder.CreateType** method throws an ArgumentException. I did not find this fact in the official documentation of the Reflection.Emit namespace.[^2]
 
 Finally, add the `ElseIf` command to the list of valid commands. You know how.
 
@@ -1004,4 +1004,6 @@ Try introducing errors, such as putting an `Exit While` or a `Continue While` ou
 To quote Dr. Jack Crenshaw, "We could stop right here, and have a language that works." Our two constructs, `If` and `While`, are enough to take care of any iteration and selection cases that are required in a language like ours. However, most languages provide some more constructs, and so will we. In the next chapter, we will look at some more loop and branch constructs. See you then.
 
 ---
-[^1] This is a simplification. The offset is actually calculated in bytes, starting from the start of the instruction following the jump instruction itself. To properly calculate the offset, we need to know how many bytes are taken up by each instruction and its parameters. Fortunately, because we use the Reflection Emit library to generate CIL, we don't have to calculate the offset ourselves.
+[^1]: This is a simplification. The offset is actually calculated in bytes, starting from the start of the instruction following the jump instruction itself. To properly calculate the offset, we need to know how many bytes are taken up by each instruction and its parameters. Fortunately, because we use the Reflection Emit library to generate CIL, we don't have to calculate the offset ourselves.
+
+[^2]: I first discovered this omission in 2004. In October 2019,  I forked the .NET documentation repository on GitHub, added the missing information, and generated a pull request. It's been accepted and merged. The results can be seen [here](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator.definelabel?view=netframework-4.8).
