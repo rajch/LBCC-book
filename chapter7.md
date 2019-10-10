@@ -545,7 +545,9 @@ In the last chapter, we had defined a line to be one of our commands. Now, a lin
 <line>               ::= <command>|<typefirstdeclaration>|<assignmentstatement>
 ```
 
-So here's what `ParseLine` will do. We will scan a name. If the name is a valid command, we will invoke `ParseCommand`. If it is a valid type name, we will invoke `ParseTypeFirstDeclaration`. In all other cases, we will invoke `ParseAssignmentStatement`.
+Lastly, a line can also be inside a comment block, in which case it can be anything.
+
+So here's what `ParseLine` will do. We will scan a name. If the name is a valid command, we will invoke `ParseCommand`. If we are in a comment block, we will silently ignore the rest of the line. If it is a valid type name, we will invoke `ParseTypeFirstDeclaration`. In all other cases, we will invoke `ParseAssignmentStatement`.
 
 Make the change in **Parser.vb**.
 
@@ -571,6 +573,8 @@ Private Function ParseLine() As ParseStatus
 
             If IsValidCommand(name) Then
                 result = ParseCommand()
+            ElseIf m_inCommentBlock Then
+                result = Ok()
             ElseIf IsValidType(name) Then
                 result = ParseTypeFirstDeclaration()
             Else
